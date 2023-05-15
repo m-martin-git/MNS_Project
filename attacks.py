@@ -64,4 +64,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+
+    # Initial execution
+    redo = 'y'    
+
+    # Redo loop
+    while redo.lower() != 'n':
+        main()
+        redo = input("Do you want to perform another attack? (y/n): ")
