@@ -61,7 +61,6 @@ def main():
     # Print the result
     print()
     print(atk)
-    print()
 
 
 if __name__ == "__main__":
