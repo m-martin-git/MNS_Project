@@ -21,6 +21,7 @@ def attack_to_perform(number):
         return 'Number out of range'
 
 def print_attack_menu():
+    print()
     print("Select an attack:")
     print("(1) Sweep")
     print("(2) Denial of Service (DoS)")
@@ -61,6 +62,7 @@ def main():
     # Print the result
     print()
     print(atk)
+    print()
 
 
 if __name__ == "__main__":
