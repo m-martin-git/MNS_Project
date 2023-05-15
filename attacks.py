@@ -54,8 +54,13 @@ def main():
     print_attack_menu()
 
     # Get input from the user
-    number = int(input("Enter a number: "))
-
+    while True:
+        try:
+            number = int(input("Enter a number: "))
+            break  # Exit the loop if a valid number is entered
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+        
     # Select the attack type
     atk = attack_to_perform(number)
 
@@ -68,7 +73,7 @@ def main():
 if __name__ == "__main__":
 
     # Initial execution
-    redo = 'y'    
+    redo = ''    
 
     # Redo loop
     while redo.lower() != 'n':
