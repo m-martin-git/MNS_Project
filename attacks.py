@@ -59,7 +59,9 @@ def main():
     atk = attack_to_perform(number)
 
     # Print the result
+    print()
     print(atk)
+    print()
 
 
 if __name__ == "__main__":
