@@ -111,34 +111,53 @@ def perform_port_scan(ip_addr=None, port_range=None):
     if not port_range:
         # Get input from the user
         port_range = input("Enter the port range to scan (e.g. 1-1000): ")
-    """    
-    #split the port range into two numbers
-    port_range = port_range.split('-')
-    #convert the port numbers to integers
+
+    # split the port range into two numbers
+    port_range = port_range.split("-")
+    # convert the port numbers to integers
     port_start = int(port_range[0])
     port_end = int(port_range[1])
-    #create a list of ports to scan
-    ports = range(port_start, port_end+1)
-    #create a list of open ports
+    # create a list of ports to scan
+    ports = range(port_start, port_end + 1)
+
+    print(
+        "Scanning "
+        + ip_addr
+        + " for open TCP ports in range ("
+        + str(port_start)
+        + " - "
+        + str(port_end)
+        + ")."
+    )
+
+    # create a list of open ports
     open_ports = []
-    #scan the ports
-    for port in ports:
-        #create a TCP packet
-        tcp_packet = IP(dst=ip_addr)/TCP(dport=port, flags='S')
-        #send the packet and wait for a response
-        tcp_response = sr1(tcp_packet, timeout=1, verbose=0)
-        #if a response was received
-        if tcp_response:
-            #if the response is a SYN-ACK
-            if tcp_response[TCP].flags == 'SA':
-                #add the port to the list of open ports
-                open_ports.append(port)
-    #print the open ports
-    print("Open ports:")
+    try:
+        # scan the ports
+        for port in ports:
+            # create a TCP packet
+            tcp_packet = IP(dst=ip_addr) / TCP(dport=port, flags="S")
+            # send the packet and wait for a response
+            tcp_response = sr1(tcp_packet, timeout=0.5, verbose=0)
+            # if a response was received
+            if tcp_response:
+                # if the response is a SYN-ACK
+                if tcp_response[TCP].flags == "SA":
+                    # add the port to the list of open ports
+                    open_ports.append(port)
+            sr(
+                IP(dst=ip_addr) / TCP(dport=tcp_response.sport, flags="R"),
+                timeout=0.5,
+                verbose=0,
+            )
+    except AttributeError:
+        pass
+
+    # print the open ports
     for port in open_ports:
-        print(port)
-    """
-    return "Port scan performed on " + ip_addr + " from " + port_range
+        print("Port" + str(port) + " is open!")
+
+    return "Port scan performed successfully on " + ip_addr
 
 
 # Code to perform ip spoofing
@@ -234,35 +253,6 @@ def perform_special_attack(ip_addr=None):
         ip_addr = input("Enter the IP address to scan: ")
 
     return "Special attack performed on " + ip_addr
-
-
-"""
-def perform_portScan():
-    logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-
-    target = input("Enter the destination IP: ")
-    startport = input("Enter starting port: ")
-    endport = input("Enter ending port: ")
-
-    target = str(target)
-    startport = int(startport)
-    endport = int(endport)
-
-    print("Scanning " + target + " for open TCP ports in range (" + str(startport) + " - " + str(endport) + ").")
-
-    if startport == endport:
-        endport += 1
-    try:
-        for port in range(startport, endport):
-            packet = IP(dst=target) / TCP(dport=port, flags="S")
-            response = sr1(packet, timeout=0.5, verbose=0)
-            if response.getlayer(TCP).flags == 0x12: # SYN-ACK.
-                print("Port " + str(port) + " is open!")
-            sr(IP(dst=target) / TCP(dport=response.sport, flags="R"), timeout=0.5, verbose=0)
-    except AttributeError:
-        pass
-    return 'port scanning performed'
-"""
 
 
 def main():
