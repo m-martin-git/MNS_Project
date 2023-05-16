@@ -58,7 +58,7 @@ def print_attack_menu():
 # perform the attack
 
 
-# code to perform reconnaissance attack
+# Code to perform reconnaissance attack
 def perform_reconnaissance(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -67,7 +67,7 @@ def perform_reconnaissance(ip_addr=None):
     return "Reconnaissance performed on " + ip_addr
 
 
-# code to perform dos attack
+# Code to perform dos attack
 def perform_dos(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -76,12 +76,12 @@ def perform_dos(ip_addr=None):
     return "Dos performed on " + ip_addr
 
 
-# code to perform ftp attack
+# Code to perform ftp attack
 def perform_ftp_attack():
     return "ftp attack performed"
 
 
-# code to perform ip address sweep
+# Code to perform ip address sweep
 def perform_sweep(packet_dst=None, packet_data=""):
     if not packet_dst:
         # Get input from the user
@@ -97,12 +97,12 @@ def perform_sweep(packet_dst=None, packet_data=""):
         if reply is not None and ICMP in reply:
             live_hosts.append(ip)
 
-    print (live_hosts)
-    
+    print("Live hosts: ", live_hosts)
+
     return "Sweep towards " + packet_dst + " performed"
 
 
-# code to perform port scan
+# Code to perform port scan
 def perform_port_scan(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
@@ -141,7 +141,7 @@ def perform_port_scan(ip_addr=None, port_range=None):
     return "Port scan performed on " + ip_addr + " from " + port_range
 
 
-# code to perform ip spoofing
+# Code to perform ip spoofing
 def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
     if not src_ip:
         # Get input from the user
@@ -165,7 +165,7 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
     )
 
 
-# code to perform os discovery
+# Code to perform os discovery
 def perform_os_discovery(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -174,7 +174,7 @@ def perform_os_discovery(ip_addr=None):
     return "OS discovery performed on " + ip_addr
 
 
-# code to perform syn flood attack
+# Code to perform syn flood attack
 def perform_syn_flood_attack(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
@@ -187,7 +187,7 @@ def perform_syn_flood_attack(ip_addr=None, port_range=None):
     return "SYN flood attack performed on " + ip_addr + " from " + port_range
 
 
-# code to perform icmp flood attack
+# Code to perform icmp flood attack
 def perform_icmp_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -196,7 +196,7 @@ def perform_icmp_flood_attack(ip_addr=None):
     return "ICMP flood attack performed on " + ip_addr
 
 
-# code to perform udp flood attack
+# Code to perform udp flood attack
 def perform_udp_flood_attack(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
@@ -209,7 +209,7 @@ def perform_udp_flood_attack(ip_addr=None, port_range=None):
     return "UDP flood attack performed on " + ip_addr + " from " + port_range
 
 
-# code to perform drop communication
+# Code to perform drop communication
 def perform_drop_communication(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -218,7 +218,7 @@ def perform_drop_communication(ip_addr=None):
     return "Drop communication performed on " + ip_addr
 
 
-# code to perform ARP poisoning
+# Code to perform ARP poisoning
 def perform_arp_poisoning(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -227,7 +227,7 @@ def perform_arp_poisoning(ip_addr=None):
     return "ARP poisoning performed on " + ip_addr
 
 
-# code to perform Special attack
+# Code to perform Special attack
 def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
