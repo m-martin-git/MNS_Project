@@ -1,5 +1,5 @@
 from scapy.all import *
-from scapy.layers.inet import TCP, IP  # and others
+from scapy.layers.inet import IP, UDP, TCP, ICMP  # and others
 
 
 def attack_to_perform(number):
@@ -82,19 +82,23 @@ def perform_ftp_attack():
 
 
 # code to perform ip address sweep
-def perform_sweep(packet_dst=None, packet_data=None):
+def perform_sweep(packet_dst=None, packet_data=""):
     if not packet_dst:
         # Get input from the user
         packet_dst = input("Enter the destination IP: ")
+        packet_data = input("Enter the packet data: ")
 
-    """
-    packet = IP(dst=packet_dst) / ICMP() / packet_data
+    live_hosts = []
+    ip_range = [packet_dst + str(i) for i in range(1, 255)]
 
-    intervals = [0.005, 0.010, 0.020, 0.050]
-    for interval in intervals:
-        print(f"{int(interval * 1000)} ms:")
-        sr(packet, inter=interval)
-    """
+    for ip in ip_range:
+        packet = IP(dst=ip) / ICMP() / packet_data
+        reply = sr1(packet, timeout=0.1, verbose=0)
+        if reply is not None and ICMP in reply:
+            live_hosts.append(ip)
+
+    print (live_hosts)
+    
     return "Sweep towards " + packet_dst + " performed"
 
 
