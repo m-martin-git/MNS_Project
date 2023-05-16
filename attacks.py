@@ -29,7 +29,6 @@ def attack_to_perform(number):
 
 
 def print_attack_menu():
-    print()
     print("Select an attack:")
     print("Standard Attacks: -----------------------------------")
     print("(1) Reconnaissance Attack on network 192...")
@@ -233,6 +232,34 @@ def perform_special_attack(ip_addr):
     return "Special attack performed on " + ip_addr
 
 
+
+
+def perform_portScan():
+    logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+
+    target = input("Enter the destination IP: ")
+    startport = input("Enter starting port: ")
+    endport = input("Enter ending port: ")
+
+    target = str(target)
+    startport = int(startport)
+    endport = int(endport)
+
+    print("Scanning " + target + " for open TCP ports in range (" + str(startport) + " - " + str(endport) + ").")
+
+    if startport == endport:
+        endport += 1
+    try:
+        for port in range(startport, endport):
+            packet = IP(dst=target) / TCP(dport=port, flags="S")
+            response = sr1(packet, timeout=0.5, verbose=0)
+            if response.getlayer(TCP).flags == 0x12: # SYN-ACK.
+                print("Port " + str(port) + " is open!")
+            sr(IP(dst=target) / TCP(dport=response.sport, flags="R"), timeout=0.5, verbose=0)
+    except AttributeError:
+        pass
+    return 'port scanning performed'
+
 def main():
     # Print attack menu
     print_attack_menu()
@@ -262,3 +289,4 @@ if __name__ == "__main__":
     while redo.lower() != "n":
         main()
         redo = input("Do you want to perform another attack? (y/n): ")
+        print("\n")
