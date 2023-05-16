@@ -4,7 +4,7 @@ from scapy.layers.inet import TCP, IP # and others
 def attack_to_perform(number):
     switch = {
         1: perform_sweep,
-        2: 'two',
+        2: perform_portScan,
         3: 'three',
         4: 'four',
         5: 'five',
@@ -21,7 +21,6 @@ def attack_to_perform(number):
         return 'Number out of range'
 
 def print_attack_menu():
-    print()
     print("Select an attack:")
     print("(1) Sweep")
     print("(2) Denial of Service (DoS)")
@@ -37,17 +36,46 @@ def print_attack_menu():
 
 def perform_sweep():
     # Get input from the user
-    packet_dst = input("Enter the destination IP: ")
-    packet_data = input("Enter the packet data: ")
-    '''
-    packet = IP(dst=packet_dst) / ICMP() / packet_data
+    packet_dst = input("Enter the destination IP range: ")
+    #packet_data = input("Enter the packet data: ")
+    live_hosts = []
+    ip_range = [packet_dst + str(i) for i in range(1, 255)]
 
-    intervals = [0.005, 0.010, 0.020, 0.050]
-    for interval in intervals:
-        print(f"{int(interval * 1000)} ms:")
-        sr(packet, inter=interval)
-    '''
+    for ip in ip_range:
+        packet = IP(dst=ip) / ICMP()
+        reply = sr1(packet, timeout=0.1, verbose=0)
+        if reply is not None and ICMP in reply:
+            live_hosts.append(ip)
+    print (live_hosts)
     return 'sweep performed'
+
+
+
+def perform_portScan():
+    logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+
+    target = input("Enter the destination IP: ")
+    startport = input("Enter starting port: ")
+    endport = input("Enter ending port: ")
+
+    target = str(target)
+    startport = int(startport)
+    endport = int(endport)
+
+    print("Scanning " + target + " for open TCP ports in range (" + str(startport) + " - " + str(endport) + ").")
+
+    if startport == endport:
+        endport += 1
+    try:
+        for port in range(startport, endport):
+            packet = IP(dst=target) / TCP(dport=port, flags="S")
+            response = sr1(packet, timeout=0.5, verbose=0)
+            if response.getlayer(TCP).flags == 0x12: # SYN-ACK.
+                print("Port " + str(port) + " is open!")
+            sr(IP(dst=target) / TCP(dport=response.sport, flags="R"), timeout=0.5, verbose=0)
+    except AttributeError:
+        pass
+    return 'port scanning performed'
 
 def main():
     # Print attack menu
@@ -55,6 +83,7 @@ def main():
 
     # Get input from the user
     while True:
+        print("\n")
         try:
             number = int(input("Enter a number: "))
             break  # Exit the loop if a valid number is entered
@@ -65,13 +94,12 @@ def main():
     atk = attack_to_perform(number)
 
     # Print the result
-    print()
-    print(atk)
-    print()
+    #print("\n")
+    #print(atk)
+    #print()
 
 
 if __name__ == "__main__":
-
     # Initial execution
     redo = ''    
 
@@ -79,3 +107,4 @@ if __name__ == "__main__":
     while redo.lower() != 'n':
         main()
         redo = input("Do you want to perform another attack? (y/n): ")
+        print("\n")
