@@ -1,5 +1,5 @@
 from scapy.all import *
-from scapy.layers.inet import IP, UDP, TCP, ICMP  # and others
+from scapy.layers.inet import IP, UDP, TCP, ICMP
 
 
 def attack_to_perform(number):
