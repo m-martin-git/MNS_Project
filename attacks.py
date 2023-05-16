@@ -29,7 +29,6 @@ def attack_to_perform(number):
 
 
 def print_attack_menu():
-    print("Select an attack:")
     print("Standard Attacks: -----------------------------------")
     print("(1) Reconnaissance Attack on network 192...")
     print("(2) Reconnaissance Attack on network 192...")
@@ -48,6 +47,7 @@ def print_attack_menu():
     print("(14) Drop Communication")
     print("(15) ARP Poisoning")
     print("(16) Special Attack")
+    print("-----------------------------------------------------")
     print()
 
 
@@ -59,7 +59,7 @@ def print_attack_menu():
 
 
 # code to perform reconnaissance attack
-def perform_reconnaissance(ip_addr = None):
+def perform_reconnaissance(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -68,7 +68,7 @@ def perform_reconnaissance(ip_addr = None):
 
 
 # code to perform dos attack
-def perform_dos(ip_addr = None):
+def perform_dos(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to Dos: ")
@@ -82,7 +82,7 @@ def perform_ftp_attack():
 
 
 # code to perform ip address sweep
-def perform_sweep(packet_dst = None, packet_data = None):
+def perform_sweep(packet_dst=None, packet_data=None):
     if not packet_dst:
         # Get input from the user
         packet_dst = input("Enter the destination IP: ")
@@ -99,7 +99,7 @@ def perform_sweep(packet_dst = None, packet_data = None):
 
 
 # code to perform port scan
-def perform_port_scan(ip_addr = None, port_range = None):
+def perform_port_scan(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -138,7 +138,7 @@ def perform_port_scan(ip_addr = None, port_range = None):
 
 
 # code to perform ip spoofing
-def perform_ip_spoofing(src_ip = None, dst_ip = None, packet_data = None):
+def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
     if not src_ip:
         # Get input from the user
         src_ip = input("Enter the source IP address: ")
@@ -162,7 +162,7 @@ def perform_ip_spoofing(src_ip = None, dst_ip = None, packet_data = None):
 
 
 # code to perform os discovery
-def perform_os_discovery(ip_addr = None):
+def perform_os_discovery(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -171,7 +171,7 @@ def perform_os_discovery(ip_addr = None):
 
 
 # code to perform syn flood attack
-def perform_syn_flood_attack(ip_addr = None, port_range = None):
+def perform_syn_flood_attack(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -184,7 +184,7 @@ def perform_syn_flood_attack(ip_addr = None, port_range = None):
 
 
 # code to perform icmp flood attack
-def perform_icmp_flood_attack(ip_addr = None):
+def perform_icmp_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -193,7 +193,7 @@ def perform_icmp_flood_attack(ip_addr = None):
 
 
 # code to perform udp flood attack
-def perform_udp_flood_attack(ip_addr = None, port_range = None):
+def perform_udp_flood_attack(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -206,7 +206,7 @@ def perform_udp_flood_attack(ip_addr = None, port_range = None):
 
 
 # code to perform drop communication
-def perform_drop_communication(ip_addr = None):
+def perform_drop_communication(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -215,7 +215,7 @@ def perform_drop_communication(ip_addr = None):
 
 
 # code to perform ARP poisoning
-def perform_arp_poisoning(ip_addr = None):
+def perform_arp_poisoning(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -224,7 +224,7 @@ def perform_arp_poisoning(ip_addr = None):
 
 
 # code to perform Special attack
-def perform_special_attack(ip_addr = None):
+def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
@@ -232,8 +232,7 @@ def perform_special_attack(ip_addr = None):
     return "Special attack performed on " + ip_addr
 
 
-
-
+"""
 def perform_portScan():
     logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
@@ -259,6 +258,8 @@ def perform_portScan():
     except AttributeError:
         pass
     return 'port scanning performed'
+"""
+
 
 def main():
     # Print attack menu
@@ -267,7 +268,7 @@ def main():
     # Get input from the user
     while True:
         try:
-            number = int(input("Enter a number: "))
+            number = int(input("Select an attack: "))
             break  # Exit the loop if a valid number is entered
         except ValueError:
             print("Invalid input. Please enter a valid number.")
@@ -289,4 +290,4 @@ if __name__ == "__main__":
     while redo.lower() != "n":
         main()
         redo = input("Do you want to perform another attack? (y/n): ")
-        print("\n")
+        print()
