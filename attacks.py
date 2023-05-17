@@ -360,10 +360,10 @@ def perform_drop_communication(ip_addr=None):
                     "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, Seq: {}, Ack: {}".format(
                         packet[IP].src,
                         packet[IP].dst,
-                        packet[TCP].sport,
-                        packet[TCP].dport,
-                        packet[TCP].seq,
-                        packet[TCP].ack,
+                        rst_packet[TCP].sport,
+                        rst_packet[TCP].dport,
+                        rst_packet[TCP].seq,
+                        rst_packet[TCP].ack,
                     )
                 )
 
