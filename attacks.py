@@ -4,22 +4,22 @@ from scapy.layers.inet import IP, UDP, TCP, ICMP
 
 def attack_to_perform(number):
     switch = {
-        1: perform_reconnaissance,  # first recon attack
-        2: perform_reconnaissance,  # second recon attack
-        3: perform_dos,  # first dos attack
-        4: perform_dos,  # second dos attack
-        5: perform_dos,  # third dos attack
-        6: perform_ftp_attack,  # ftp attack
-        7: perform_sweep,  # ip address sweep
-        8: perform_port_scan,  # port scan
-        9: perform_ip_spoofing,  # ip spoofing
-        10: perform_os_discovery,  # os discovery
-        11: perform_syn_flood_attack,  # syn flood attack
-        12: perform_icmp_flood_attack,  # icmp flood attack
-        13: perform_udp_flood_attack,  # udp flood attack
-        14: perform_drop_communication,  # drop communication
-        15: perform_arp_poisoning,  # arp poisoning
-        16: perform_special_attack,  # special attack
+        1: perform_reconnaissance,          # first recon attack
+        2: perform_reconnaissance,          # second recon attack
+        3: perform_dos,                     # first dos attack
+        4: perform_dos,                     # second dos attack
+        5: perform_dos,                     # third dos attack
+        6: perform_ftp_attack,              # ftp attack
+        7: perform_sweep,                   # ip address sweep
+        8: perform_port_scan,               # port scan
+        9: perform_ip_spoofing,             # ip spoofing
+        10: perform_os_discovery,           # os discovery
+        11: perform_syn_flood_attack,       # syn flood attack
+        12: perform_icmp_flood_attack,      # icmp flood attack
+        13: perform_udp_flood_attack,       # udp flood attack
+        14: perform_drop_communication,     # drop communication
+        15: perform_arp_poisoning,          # arp poisoning
+        16: perform_special_attack          # special attack
     }
 
     if number in switch:
@@ -332,7 +332,7 @@ def perform_drop_communication(ip_addr=None):
         ip_addr = input("Enter the IP address to attack: ")
 
     # Create a packet filter to capture packets from the specified IP address
-    filter_str = "ip src {}".format(ip_addr)
+    filter_str = "tcp and src host {}".format(ip_addr)
 
     # Sniff packets and execute RST attack
     def packet_handler(packet):
