@@ -356,8 +356,8 @@ def perform_drop_communication(ip_addr=None):
 
             # Print the dropped communication
             print(
-                "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}".format(
-                    packet[IP].src, packet[IP].dst, packet[TCP].sport, packet[TCP].dport
+                "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, Seq: {}, Ack: {}".format(
+                    packet[IP].src, packet[IP].dst, packet[TCP].sport, packet[TCP].dport, packet[TCP].seq, packet[TCP].ack
                 )
             )
 
