@@ -342,6 +342,7 @@ def perform_drop_communication(ip_addr=None):
                 drop_packet = ICMP(type=3, code=1)
 
                 # Send the ICMP Destination Unreachable packet
+                send(IP(src=packet[IP].src, dst=packet[IP].dst) / drop_packet, verbose=0)
                 send(IP(src=packet[IP].dst, dst=packet[IP].src) / drop_packet, verbose=0)
 
                 # Print the dropped communication
