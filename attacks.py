@@ -197,8 +197,8 @@ def perform_os_discovery(ip_addr=None):
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
 
-    # Send TCP packet with the FIN and SYN flag set
-    packet = IP(dst=ip_addr) / TCP(flags="SF")
+    # Send TCP packet with no flags set
+    packet = IP(dst=ip_addr) / TCP()
     response = sr1(packet, timeout=1, verbose=0)
 
     os_result = "Unknown OS"
@@ -211,14 +211,19 @@ def perform_os_discovery(ip_addr=None):
 
 # Determine the OS based on the TCP flags
 def os_fingerprint(packet):
-    if packet.haslayer(TCP) and packet[TCP].flags:
-        tcp_flags = packet[TCP].flags
-        if tcp_flags & 0x01 and tcp_flags & 0x10:  # FIN and ACK flags
-            return "Windows XP"
-        elif tcp_flags & 0x02 and not tcp_flags & 0x10:  # SYN flag without ACK flag
-            return "Kali Linux"
+    if packet.haslayer(IP):
+        ip_ttl = packet[IP].ttl
 
-    return "Unknown OS"
+        # Assuming Linux-based OSes have a TTL value of 64
+        if ip_ttl == 64:
+            return "Linux-based OS"
+
+        # Assuming Windows-based OSes have a TTL value of 128
+        elif ip_ttl == 128:
+            return "Windows-based OS"
+
+    # Fallback option if packet analysis does not provide OS information
+    return "No OS information available"
 
 
 # (11) Code to perform syn flood attack
