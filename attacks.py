@@ -197,20 +197,14 @@ def perform_os_discovery(ip_addr=None):
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
 
-    # Send TCP packet with the FIN flag set
-    fin_packet = IP(dst=ip_addr) / TCP(flags="F")
-    fin_response = sr1(fin_packet, timeout=1, verbose=0)
-
-    # Send TCP packet with the SYN flag set
-    syn_packet = IP(dst=ip_addr) / TCP(flags="S")
-    syn_response = sr1(syn_packet, timeout=1, verbose=0)
+    # Send TCP packet with the FIN and SYN flag set
+    packet = IP(dst=ip_addr) / TCP(flags="SF")
+    response = sr1(packet, timeout=1, verbose=0)
 
     os_result = "Unknown OS"
 
-    if fin_response:
-        os_result = os_fingerprint(fin_response)
-    elif syn_response:
-        os_result = os_fingerprint(syn_response)
+    if response:
+        os_result = os_fingerprint(response)
 
     return "OS discovery performed on {}. Detected OS: {}".format(ip_addr, os_result)
 
