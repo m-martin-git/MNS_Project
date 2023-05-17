@@ -209,7 +209,7 @@ def perform_os_discovery(ip_addr=None):
     return "OS discovery performed on {}. Detected OS: {}".format(ip_addr, os_result)
 
 
-# Determine the OS based on the TCP flags
+# Determine the OS based on the response packet TTL value
 def os_fingerprint(packet):
     if packet.haslayer(IP):
         ip_ttl = packet[IP].ttl
