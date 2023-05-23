@@ -111,7 +111,7 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
         or response.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]
     ):
         return "Port is filtered. Stateful firewall is present."
-    elif response.haslayer(TCP) and response.getlayer(TCP).flags == "A":
+    elif response.haslayer(TCP):
         return "Port is unfiltered. Stateful firewall is absent."
     else:
         return "Unexpected response. Unable to determine the state of the port."
