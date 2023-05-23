@@ -191,7 +191,7 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
 
     return (
         "Port "
-        + dst_port
+        + str(dst_port)
         + " on "
         + selected_host
         + " is "
