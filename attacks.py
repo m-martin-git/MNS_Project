@@ -6,7 +6,7 @@ import ftplib
 def attack_to_perform(number):
     switch = {
         1: perform_reconnaissance_TCP_ACK,  # first recon attack
-        2: perform_reconnaissance,  # second recon attack
+        2: perform_reconnaissance_UDP_SCAN,  # second recon attack
         3: perform_dos,  # first dos attack
         4: perform_dos,  # second dos attack
         5: perform_dos,  # third dos attack
@@ -32,7 +32,7 @@ def attack_to_perform(number):
 def print_attack_menu():
     print("Standard Attacks: -----------------------------------")
     print("(1) Reconnaissance: TCP ACK FLAG Scan on network 192.168.200.x ")
-    print("(2) Reconnaissance Attack on network 192...")
+    print("(2) Reconnaissance: UDP Scan on network 192.168.200.x")
     print("(3) Denial of Service Attack on network 192...")
     print("(4) Denial of Service Attack on network 192...")
     print("(5) Denial of Service Attack on network 192...")
@@ -59,15 +59,7 @@ def print_attack_menu():
 # perform the attack
 
 
-# Code to perform reconnaissance attack
-def perform_reconnaissance(ip_addr=None):
-    if not ip_addr:
-        # Get input from the user
-        ip_addr = input("Enter the IP address to scan: ")
-
-    return "Reconnaissance performed on " + ip_addr
-
-
+# (1) Code to perform reconnaissance TCP ACK FLAG Scan
 def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
 
@@ -106,15 +98,70 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     # Check the response for different scenarios
     if response is None:
         return "Port is filtered. Stateful firewall is present."
-    elif response.haslayer(ICMP) and (
-        response.getlayer(ICMP).type == 3
-        or response.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]
-    ):
-        return "Port is filtered. Stateful firewall is present."
     elif response.haslayer(TCP):
         return "Port is unfiltered. Stateful firewall is absent."
+    elif response.haslayer(ICMP):
+        if int(response.getlayer(ICMP).type) == 3 and int(
+            response.getlayer(ICMP).code
+        ) in [1, 2, 3, 9, 10, 13]:
+            return "Port is filtered. Stateful firewall is present."
     else:
         return "Unexpected response. Unable to determine the state of the port."
+
+
+# (2) Code to perform reconnaissance UDP SCAN
+def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
+    print("Searching for live hosts on the network...")
+
+    live_hosts = perform_sweep(packet_dst=ip_addr)
+
+    # Prompt the user to choose a host by typing a number
+    selected_host = None
+    while not selected_host:
+        try:
+            # Display the list of live hosts with corresponding numbers
+            for i, host in enumerate(live_hosts):
+                print(f"{i+1}: {host}")
+
+            choice = input("Enter the number of the host you want to select: ")
+            choice = int(choice)
+
+            if 1 <= choice <= len(live_hosts):
+                selected_host = live_hosts[choice - 1]
+            else:
+                print("Invalid choice. Please enter a valid number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    # Print the selected host
+    print("Selected host: ", selected_host)
+
+    # Perform the UDP scan
+    print("Performing UDP scan on ", selected_host, " port 80 ...")
+
+    # Create the packet
+    packet = IP(dst=selected_host) / UDP(dport=80)
+
+    # Send the packet and get the response
+    response = sr1(packet, timeout=1, verbose=0)
+
+    # Check the response for different scenarios
+    if response is None:
+        return "Port 80 on", selected_host, "is either open or filtered."
+    elif response.haslayer(UDP):
+        return "Port 80 on", selected_host, "is open."
+    elif response.haslayer(ICMP):
+        if (
+            int(response.getlayer(ICMP).type) == 3
+            and int(response.getlayer(ICMP).code) == 3
+        ):
+            return "Port 80 on", selected_host, "is closed."
+        elif int(response.getlayer(ICMP).type) == 3 and int(
+            response.getlayer(ICMP).code
+        ) in [1, 2, 9, 10, 13]:
+            return "Port 80 on", selected_host, "is filtered."
+    else:
+        return "Unexpected response received."
 
 
 # Code to perform dos attack
