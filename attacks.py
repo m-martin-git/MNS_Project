@@ -79,7 +79,7 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
         try:
             # Display the list of live hosts with corresponding numbers
             for i, host in enumerate(live_hosts):
-                print(f"{i+1}: {host}")
+                print(f"{i+1}: {host[i]}")
 
             choice = input("Enter the number of the host you want to select: ")
             choice = int(choice)
@@ -163,7 +163,7 @@ def perform_sweep(packet_dst=None, packet_data=""):
 
     print("Live hosts: ", live_hosts)
 
-    if flag:
+    if not flag:
         return live_hosts
 
     return "Sweep towards " + packet_dst + " performed"
