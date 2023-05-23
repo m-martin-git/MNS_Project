@@ -86,15 +86,34 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     # Print the selected host
     print("Selected host: ", selected_host)
 
+    dst_port = 80
+    dst_ip = selected_host
+
     # Perform the TCP ACK scan
-    print("Performing TCP ACK scan on ", selected_host, " port 80 ...")
+    print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
 
     # Create the packet
-    packet = IP(dst=selected_host) / TCP(flags="A", dport=80)
+    # packet = IP(dst=selected_host) / TCP(flags="A", dport=80)
 
     # Send the packet and get the response
-    response = sr1(packet, timeout=1, verbose=0)
+    # response = sr1(packet, timeout=1, verbose=0)
 
+    response = sr1(
+        IP(dst=dst_ip) / TCP(dport=dst_port, flags="A"), timeout=10, verbose=False
+    )
+
+    if response is None:
+        return "Stateful firewall present (Filtered)"
+    elif response.haslayer(TCP):
+        if response.getlayer(TCP).flags == 0x4:  # RST flag
+            return "No firewall (Unfiltered)"
+    elif response.haslayer(ICMP):
+        if int(response.getlayer(ICMP).type) == 3 and int(
+            response.getlayer(ICMP).code
+        ) in [1, 2, 3, 9, 10, 13]:
+            return "Stateful firewall present (Filtered)"
+
+    """
     # Check the response for different scenarios
     if response is None:
         return "Port is filtered. Stateful firewall is present."
@@ -107,6 +126,7 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
             return "Port is filtered. Stateful firewall is present."
     else:
         return "Unexpected response. Unable to determine the state of the port."
+    """
 
 
 # (2) Code to perform reconnaissance UDP SCAN
@@ -136,15 +156,20 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
     # Print the selected host
     print("Selected host: ", selected_host)
 
+    dst_port = 53
+    dst_ip = selected_host
+    dst_timeout = 10
+
     # Perform the UDP scan
-    print("Performing UDP scan on ", selected_host, " port 80 ...")
+    print("Performing UDP scan on ", dst_ip, " port ", dst_port, " ...")
 
     # Create the packet
-    packet = IP(dst=selected_host) / UDP(dport=80)
+    # packet = IP(dst=selected_host) / UDP(dport=80)
 
     # Send the packet and get the response
-    response = sr1(packet, timeout=1, verbose=0)
+    # response = sr1(packet, timeout=1, verbose=0)
 
+    """
     # Check the response for different scenarios
     if response is None:
         return "Port 80 on", selected_host, "is either open or filtered."
@@ -162,6 +187,46 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
             return "Port 80 on", selected_host, "is filtered."
     else:
         return "Unexpected response received."
+    """
+
+    return (
+        "Port "
+        + dst_port
+        + " on "
+        + selected_host
+        + " is "
+        + udp_scan(dst_ip, dst_port, dst_timeout)
+    )
+
+
+def udp_scan(dst_ip, dst_port, dst_timeout):
+    udp_scan_resp = sr1(IP(dst=dst_ip) / UDP(dport=dst_port), timeout=dst_timeout)
+
+    if udp_scan_resp is None:
+        retrans = []
+        for count in range(0, 3):
+            retrans.append(
+                sr1(IP(dst=dst_ip) / UDP(dport=dst_port), timeout=dst_timeout)
+            )
+
+        for item in retrans:
+            if item is not None:
+                udp_scan(dst_ip, dst_port, dst_timeout)
+
+        return "Open|Filtered"
+
+    elif udp_scan_resp.haslayer(UDP):
+        return "Open"
+
+    elif udp_scan_resp.haslayer(ICMP):
+        icmp_type = int(udp_scan_resp.getlayer(ICMP).type)
+        icmp_code = int(udp_scan_resp.getlayer(ICMP).code)
+
+        if icmp_type == 3 and icmp_code == 3:
+            return "Closed"
+
+        elif icmp_type == 3 and icmp_code in [1, 2, 9, 10, 13]:
+            return "Filtered"
 
 
 # Code to perform dos attack
