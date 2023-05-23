@@ -5,7 +5,7 @@ import ftplib
 
 def attack_to_perform(number):
     switch = {
-        1: perform_reconnaissance,  # first recon attack
+        1: perform_reconnaissance_TCP_ACK,  # first recon attack
         2: perform_reconnaissance,  # second recon attack
         3: perform_dos,  # first dos attack
         4: perform_dos,  # second dos attack
@@ -31,7 +31,7 @@ def attack_to_perform(number):
 
 def print_attack_menu():
     print("Standard Attacks: -----------------------------------")
-    print("(1) Reconnaissance Attack on network 192...")
+    print("(1) Reconnaissance: TCP ACK FLAG Scan on network 192.168.200.x ")
     print("(2) Reconnaissance Attack on network 192...")
     print("(3) Denial of Service Attack on network 192...")
     print("(4) Denial of Service Attack on network 192...")
@@ -68,6 +68,49 @@ def perform_reconnaissance(ip_addr=None):
     return "Reconnaissance performed on " + ip_addr
 
 
+def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
+    print("Searching for live hosts on the network...")
+
+    live_hosts = perform_sweep(packet_dst=ip_addr)
+
+    # Prompt the user to choose a host by typing a number
+    selected_host = None
+    while not selected_host:
+        try:
+            choice = int(input("Enter the number of the host you want to select: "))
+            if 1 <= choice <= len(live_hosts):
+                selected_host = live_hosts[choice - 1]
+            else:
+                print("Invalid choice. Please enter a valid number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    # Print the selected host
+    print("Selected host: ", selected_host)
+
+    # Perform the TCP ACK scan
+    print("Performing TCP ACK scan on ", selected_host, " port 80 ...")
+
+    # Create the packet
+    packet = IP(dst=selected_host) / TCP(flags="A", dport=80)
+
+    # Send the packet and get the response
+    response = sr1(packet, timeout=1, verbose=0)
+
+    # Check the response for different scenarios
+    if response is None:
+        return "Port is filtered. Stateful firewall is present."
+    elif response.haslayer(ICMP) and (
+        response.getlayer(ICMP).type == 3
+        or response.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]
+    ):
+        return "Port is filtered. Stateful firewall is present."
+    elif response.haslayer(TCP) and response.getlayer(TCP).flags == "RA":
+        return "Port is unfiltered. Stateful firewall is absent."
+    else:
+        return "Unexpected response. Unable to determine the state of the port."
+
+
 # Code to perform dos attack
 def perform_dos(ip_addr=None):
     if not ip_addr:
@@ -95,10 +138,13 @@ def perform_ftp_attack():
 
 # (7) Code to perform ip address sweep
 def perform_sweep(packet_dst=None, packet_data=""):
+    flag = False
+
     if not packet_dst:
         # Get input from the user
         packet_dst = input("Enter the destination IP: ")
         packet_data = input("Enter the packet data: ")
+        flag = True
 
     live_hosts = []
     ip_range = [packet_dst + str(i) for i in range(1, 255)]
@@ -110,6 +156,9 @@ def perform_sweep(packet_dst=None, packet_data=""):
             live_hosts.append(ip)
 
     print("Live hosts: ", live_hosts)
+
+    if flag:
+        return live_hosts
 
     return "Sweep towards " + packet_dst + " performed"
 
