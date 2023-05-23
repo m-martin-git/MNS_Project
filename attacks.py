@@ -12,7 +12,7 @@ def attack_to_perform(number):
         5: perform_dos,  # third dos attack
         6: perform_ftp_attack,  # ftp attack (ok?)
         7: perform_sweep,  # ip address sweep (ok)
-        8: perform_port_scan,  # port scan (ok)
+        8: perform_port_scan_TCP,  # port scan (ok)
         9: perform_ip_spoofing,  # ip spoofing (ok)
         10: perform_os_discovery,  # os discovery (ok)
         11: perform_syn_flood_attack,  # syn flood attack (?)
@@ -217,7 +217,7 @@ def perform_sweep(packet_dst=None, packet_data=""):
 
 
 # (8) Code to perform port scan
-def perform_port_scan(ip_addr=None, port_range=None):
+def perform_port_scan_TCP(ip_addr=None, port_range=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
