@@ -77,7 +77,8 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     selected_host = None
     while not selected_host:
         try:
-            choice = int(input("Enter the number of the host you want to select: "))
+            choice = input("Enter the number of the host you want to select: ")
+            choice = int(choice)
             if 1 <= choice <= len(live_hosts):
                 selected_host = live_hosts[choice - 1]
             else:
