@@ -63,52 +63,12 @@ def print_attack_menu():
 def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
 
-    live_hosts = perform_sweep(packet_dst=ip_addr, start=34 , end=56)
+    live_hosts = perform_sweep(packet_dst=ip_addr, start=34, end=56)
 
-    # Prompt the user to choose a host by typing a number
-    selected_host = None
-    while not selected_host:
-        try:
-            # Display the list of live hosts with corresponding numbers
-            for i, host in enumerate(live_hosts):
-                print(f"{i+1}: {host}")
-
-            choice = input("Enter the number of the host you want to select: ")
-            choice = int(choice)
-
-            if 1 <= choice <= len(live_hosts):
-                selected_host = live_hosts[choice - 1]
-            else:
-                print("Invalid choice. Please enter a valid number.")
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    # Print the selected host
-    print("Selected host: ", selected_host)
-
-    # Ask the destination port
-    dst_port = None
-    while not dst_port:
-        try:
-            dst_port = input("Enter the destination port: ")
-            dst_port = int(dst_port)
-
-            if not 1 <= dst_port <= 65535:
-                print("Invalid port. Please enter a valid port number.")
-                dst_port = None
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    dst_ip = selected_host
+    dst_ip, dst_port = ask_host_and_port(live_hosts)
 
     # Perform the TCP ACK scan
     print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
-
-    # Create the packet
-    # packet = IP(dst=selected_host) / TCP(flags="A", dport=80)
-
-    # Send the packet and get the response
-    # response = sr1(packet, timeout=1, verbose=0)
 
     response = sr1(
         IP(dst=dst_ip) / TCP(dport=dst_port, flags="A"), timeout=10, verbose=False
@@ -125,63 +85,14 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
         ) in [1, 2, 3, 9, 10, 13]:
             return "Stateful firewall present (Filtered)"
 
-    """
-    # Check the response for different scenarios
-    if response is None:
-        return "Port is filtered. Stateful firewall is present."
-    elif response.haslayer(TCP):
-        return "Port is unfiltered. Stateful firewall is absent."
-    elif response.haslayer(ICMP):
-        if int(response.getlayer(ICMP).type) == 3 and int(
-            response.getlayer(ICMP).code
-        ) in [1, 2, 3, 9, 10, 13]:
-            return "Port is filtered. Stateful firewall is present."
-    else:
-        return "Unexpected response. Unable to determine the state of the port."
-    """
-
 
 # (2) Code to perform reconnaissance UDP SCAN
 def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
 
-    live_hosts = perform_sweep(packet_dst=ip_addr, start=34 , end=56)
+    live_hosts = perform_sweep(packet_dst=ip_addr, start=34, end=56)
 
-    # Prompt the user to choose a host by typing a number
-    selected_host = None
-    while not selected_host:
-        try:
-            # Display the list of live hosts with corresponding numbers
-            for i, host in enumerate(live_hosts):
-                print(f"{i+1}: {host}")
-
-            choice = input("Enter the number of the host you want to select: ")
-            choice = int(choice)
-
-            if 1 <= choice <= len(live_hosts):
-                selected_host = live_hosts[choice - 1]
-            else:
-                print("Invalid choice. Please enter a valid number.")
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    # Print the selected host
-    print("Selected host: ", selected_host)
-
-    # Ask the destination port
-    dst_port = None
-    while not dst_port:
-        try:
-            dst_port = input("Enter the destination port: ")
-            dst_port = int(dst_port)
-
-            if not 1 <= dst_port <= 65535:
-                print("Invalid port. Please enter a valid port number.")
-                dst_port = None
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    dst_ip = selected_host
+    dst_ip, dst_port = ask_host_and_port(live_hosts)
     dst_timeout = 10
 
     # Perform the UDP scan
@@ -503,6 +414,46 @@ def perform_special_attack(ip_addr=None):
         ip_addr = input("Enter the IP address to scan: ")
 
     return "Special attack performed on " + ip_addr
+
+
+def ask_host_and_port(live_hosts):
+    # Prompt the user to choose a host by typing a number
+    selected_host = None
+    while not selected_host:
+        try:
+            # Display the list of live hosts with corresponding numbers
+            for i, host in enumerate(live_hosts):
+                print(f"{i+1}: {host}")
+
+            choice = input("Enter the number of the host you want to select: ")
+            choice = int(choice)
+
+            if 1 <= choice <= len(live_hosts):
+                selected_host = live_hosts[choice - 1]
+            else:
+                print("Invalid choice. Please enter a valid number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    # Print the selected host
+    print("Selected host: ", selected_host)
+
+    # Ask the destination port
+    selected_port = None
+    while not selected_port:
+        try:
+            selected_port = input("Enter the destination port: ")
+            selected_port = int(selected_port)
+
+            if not 1 <= selected_port <= 65535:
+                print("Invalid port. Please enter a valid port number.")
+                selected_port = None
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+    # Print the selected port
+    print("Selected port: ", selected_port)
+
+    return selected_host, selected_port
 
 
 def main():
