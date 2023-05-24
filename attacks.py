@@ -15,14 +15,16 @@ def attack_to_perform(number):
         7: perform_sweep,  # ip address sweep (ok)
         8: perform_port_scan_TCP,  # port scan (ok)
         9: perform_ip_spoofing,  # ip spoofing (ok)
-        10: perform_os_discovery,  # os discovery (ok)
-        11: perform_syn_flood_attack,  # syn flood attack (ok)
-        12: perform_icmp_flood_attack,  # icmp flood attack (ok)
-        13: perform_udp_flood_attack,  # udp flood attack (ok)
-        14: perform_http_flood_attack,  # http flood attack (ok)
-        15: perform_ping_of_death,  # ping of death (ok)
-        16: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
-        17: perform_special_attack,  # special attack
+        10: perform_TCP_ACK_scan,  # tcp ack scan (ok)
+        11: perform_udp_scan,  # tcp ack scan (ok)
+        12: perform_os_discovery,  # os discovery (ok)
+        13: perform_syn_flood_attack,  # syn flood attack (ok)
+        14: perform_icmp_flood_attack,  # icmp flood attack (ok)
+        15: perform_udp_flood_attack,  # udp flood attack (ok)
+        16: perform_http_flood_attack,  # http flood attack (ok)
+        17: perform_ping_of_death,  # ping of death (ok)
+        18: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
+        19: perform_special_attack,  # special attack
     }
 
     if number in switch:
@@ -43,14 +45,16 @@ def print_attack_menu():
     print("(7) IP Address Sweep")
     print("(8) Port Scan")
     print("(9) IP Spoofing")
-    print("(10) Discover OS of Target")
-    print("(11) SYN Flood Attack")
-    print("(12) ICMP Flood Attack")
-    print("(13) UDP Flood Attack")
-    print("(14) HTTP Flood Attack")
-    print("(15) Ping of Death")
-    print("(16) TCP RST on Telnet")
-    print("(17) Special Attack")
+    print("(10) TCP ACK Flag Scan")
+    print("(11) UDP Scan")
+    print("(12) Discover OS of Target")
+    print("(13) SYN Flood Attack")
+    print("(14) ICMP Flood Attack")
+    print("(15) UDP Flood Attack")
+    print("(16) HTTP Flood Attack")
+    print("(17) Ping of Death")
+    print("(18) TCP RST on Telnet")
+    print("(19) Special Attack")
     print("-----------------------------------------------------")
     print()
 
@@ -70,23 +74,10 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
 
     dst_ip, dst_port = ask_host_and_port(live_hosts)
 
-    # Perform the TCP ACK scan
-    print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
+    return perform_TCP_ACK(dst_ip, dst_port)
 
-    response = sr1(
-        IP(dst=dst_ip) / TCP(dport=dst_port, flags="A"), timeout=1, verbose=False
-    )
+    
 
-    if response is None:
-        return "Stateful firewall present (Filtered)"
-    elif response.haslayer(TCP):
-        if response.getlayer(TCP).flags == 0x4:  # RST flag
-            return "No firewall (Unfiltered)"
-    elif response.haslayer(ICMP):
-        if int(response.getlayer(ICMP).type) == 3 and int(
-            response.getlayer(ICMP).code
-        ) in [1, 2, 3, 9, 10, 13]:
-            return "Stateful firewall present (Filtered)"
 
 
 # (2) Code to perform reconnaissance UDP SCAN
@@ -96,7 +87,7 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
     live_hosts = perform_sweep(packet_dst=ip_addr, start=34, end=56)
 
     dst_ip, dst_port = ask_host_and_port(live_hosts)
-    dst_timeout = 10
+    dst_timeout = 1
 
     # Perform the UDP scan
     print("Performing UDP scan on ", dst_ip, " port ", dst_port, " ...")
@@ -107,39 +98,8 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
         + " on "
         + dst_ip
         + " is "
-        + udp_scan(dst_ip, dst_port, dst_timeout)
+        + perform_udp_scan(dst_ip, dst_port, dst_timeout)
     )
-
-
-def udp_scan(dst_ip, dst_port, dst_timeout):
-    udp_scan_resp = sr1(IP(dst=dst_ip) / UDP(dport=dst_port), timeout=dst_timeout)
-
-    if udp_scan_resp is None:
-        retrans = []
-        for count in range(0, 3):
-            retrans.append(
-                sr1(IP(dst=dst_ip) / UDP(dport=dst_port), timeout=dst_timeout)
-            )
-
-        for item in retrans:
-            if item is not None:
-                udp_scan(dst_ip, dst_port, dst_timeout)
-
-        return "Open|Filtered"
-
-    elif udp_scan_resp.haslayer(UDP):
-        return "Open"
-
-    elif udp_scan_resp.haslayer(ICMP):
-        icmp_type = int(udp_scan_resp.getlayer(ICMP).type)
-        icmp_code = int(udp_scan_resp.getlayer(ICMP).code)
-
-        if icmp_type == 3 and icmp_code == 3:
-            return "Closed"
-
-        elif icmp_type == 3 and icmp_code in [1, 2, 9, 10, 13]:
-            return "Filtered"
-
 
 # (3) Code to perform denial of service SYN FLOOD on Windows XP
 def perform_dos_syn_on_XP(ip_addr="192.168.200.40"):
@@ -312,7 +272,77 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
     )
 
 
-# (10) Code to perform os discovery
+# (10) Code to perform TCP ACK FLAG Scan on custom IP
+def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
+
+    if not dst_ip:
+        # Get input from the user
+        dst_ip = input("Enter the IP address to scan: ")
+
+    if not dst_port:
+        # Get input from the user
+        dst_port = input("Enter the port range to scan (e.g. 1-1000): ")
+
+    # Perform the TCP ACK scan
+    print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
+
+    response = sr1(
+        IP(dst=dst_ip) / TCP(dport=int(dst_port), flags="A"), timeout=1, verbose=False
+    )
+
+    if response is None:
+        return "Stateful firewall present (Filtered)"
+    elif response.haslayer(TCP):
+        if response.getlayer(TCP).flags == 0x4:  # RST flag
+            return "No firewall (Unfiltered)"
+    elif response.haslayer(ICMP):
+        if int(response.getlayer(ICMP).type) == 3 and int(
+            response.getlayer(ICMP).code
+        ) in [1, 2, 3, 9, 10, 13]:
+            return "Stateful firewall present (Filtered)"
+
+
+# (11) Code to perform UDP SCAN on custom IP
+def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
+
+    if not dst_ip:
+        # Get input from the user
+        dst_ip = input("Enter the IP address to scan: ")
+
+    if not dst_port:
+        # Get input from the user
+        dst_port = input("Enter the port range to scan (e.g. 1-1000): ")
+
+    udp_scan_resp = sr1(IP(dst=dst_ip) / UDP(dport=int(dst_port)), timeout=dst_timeout)
+
+    if udp_scan_resp is None:
+        retrans = []
+        for count in range(0, 3):
+            retrans.append(
+                sr1(IP(dst=dst_ip) / UDP(dport=int(dst_port)), timeout=dst_timeout)
+            )
+
+        for item in retrans:
+            if item is not None:
+                udp_scan(dst_ip, dst_port, dst_timeout)
+
+        return "Open|Filtered"
+
+    elif udp_scan_resp.haslayer(UDP):
+        return "Open"
+
+    elif udp_scan_resp.haslayer(ICMP):
+        icmp_type = int(udp_scan_resp.getlayer(ICMP).type)
+        icmp_code = int(udp_scan_resp.getlayer(ICMP).code)
+
+        if icmp_type == 3 and icmp_code == 3:
+            return "Closed"
+
+        elif icmp_type == 3 and icmp_code in [1, 2, 9, 10, 13]:
+            return "Filtered"
+
+
+# (12) Code to perform os discovery
 def perform_os_discovery(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -347,7 +377,7 @@ def os_fingerprint(packet):
     return "No OS information available"
 
 
-# (11) Code to perform syn flood attack
+# (13) Code to perform syn flood attack
 def perform_syn_flood_attack(ip_addr=None, port="139"):
     if not ip_addr:
         # Get input from the user
@@ -360,7 +390,7 @@ def perform_syn_flood_attack(ip_addr=None, port="139"):
     return "SYN flood attack performed on " + ip_addr + " to port " + port
 
 
-# (12) Code to perform icmp flood attack
+# (14) Code to perform icmp flood attack
 def perform_icmp_flood_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -373,7 +403,7 @@ def perform_icmp_flood_attack(ip_addr=None):
     return "ICMP flood attack performed on " + ip_addr
 
 
-# (13) Code to perform udp flood attack
+# (15) Code to perform udp flood attack
 def perform_udp_flood_attack(ip_addr=None, port=None):
     if not ip_addr:
         # Get input from the user
@@ -390,7 +420,7 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
     return "UDP flood attack performed on " + ip_addr + " to port " + port
 
 
-# (14) Code to perform http flood attack
+# (16) Code to perform http flood attack
 def perform_http_flood_attack(ip_addr=None, port=80):
     if not ip_addr:
         # Get input from the user
@@ -422,7 +452,7 @@ def perform_http_flood_attack(ip_addr=None, port=80):
     return "HTTP flood attack performed on " + ip_addr + " to port " + str(port)
 
 
-# (15) Code to perform ping of death attack
+# (17) Code to perform ping of death attack
 def perform_ping_of_death(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -435,7 +465,7 @@ def perform_ping_of_death(ip_addr=None):
     return "Ping of death attack performed on " + ip_addr
 
 
-# (16) Code to perform TCP reset attack on telnet
+# (18) Code to perform TCP reset attack on telnet
 def perform_tcp_rst_on_telnet():
     print("Telnet Reset\n")
     host1 = input("Enter the IP address to attack (the one who requested the telnet): ")
@@ -465,7 +495,7 @@ def perform_tcp_rst_on_telnet():
     return "ARP poisoning performed on " + host1
 
 
-# (17) Code to perform Special attack
+# (19) Code to perform Special attack
 def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
