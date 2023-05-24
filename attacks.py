@@ -47,9 +47,10 @@ def print_attack_menu():
     print("(11) SYN Flood Attack")
     print("(12) ICMP Flood Attack")
     print("(13) UDP Flood Attack")
-    print("(14) Drop Communication")
-    print("(15) ARP Poisoning")
-    print("(16) Special Attack")
+    print("(14) HTTP Flood Attack")
+    print("(15) Drop Communication")
+    print("(16) ARP Poisoning")
+    print("(17) Special Attack")
     print("-----------------------------------------------------")
     print()
 
