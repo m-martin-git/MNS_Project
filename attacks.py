@@ -8,7 +8,7 @@ def attack_to_perform(number):
         1: perform_reconnaissance_TCP_ACK,  # first recon attack
         2: perform_reconnaissance_UDP_SCAN,  # second recon attack
         3: perform_dos_syn_on_XP,  # first dos attack
-        4: perform_dos_hhtp_on_FS,  # second dos attack
+        4: perform_dos_http_on_FS,  # second dos attack
         5: perform_dos_icmp_on_XP,  # third dos attack
         6: perform_ftp_attack,  # ftp attack (ok?)
         7: perform_sweep,  # ip address sweep (ok)
@@ -153,7 +153,7 @@ def perform_dos_syn_on_XP(ip_addr="192.168.200.40"):
 
 
 # (4) Code to perform denial of service HTTP FLOOD on Fileserver
-def perform_dos_http_on_fileserver(ip_addr="192.168.200.55"):
+def perform_dos_http_on_FS(ip_addr="192.168.200.55"):
     packet = IP(dst=ip_addr) / ICMP()
     reply = sr1(packet, timeout=0.1, verbose=0)
 
