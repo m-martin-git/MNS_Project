@@ -63,7 +63,7 @@ def print_attack_menu():
 def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
 
-    live_hosts = perform_sweep(packet_dst=ip_addr)
+    live_hosts = perform_sweep(packet_dst=ip_addr, start=34 , end=56)
 
     # Prompt the user to choose a host by typing a number
     selected_host = None
@@ -145,7 +145,7 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
 def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
 
-    live_hosts = perform_sweep(packet_dst=ip_addr)
+    live_hosts = perform_sweep(packet_dst=ip_addr, start=34 , end=56)
 
     # Prompt the user to choose a host by typing a number
     selected_host = None
@@ -186,32 +186,6 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
 
     # Perform the UDP scan
     print("Performing UDP scan on ", dst_ip, " port ", dst_port, " ...")
-
-    # Create the packet
-    # packet = IP(dst=selected_host) / UDP(dport=80)
-
-    # Send the packet and get the response
-    # response = sr1(packet, timeout=1, verbose=0)
-
-    """
-    # Check the response for different scenarios
-    if response is None:
-        return "Port 80 on", selected_host, "is either open or filtered."
-    elif response.haslayer(UDP):
-        return "Port 80 on", selected_host, "is open."
-    elif response.haslayer(ICMP):
-        if (
-            int(response.getlayer(ICMP).type) == 3
-            and int(response.getlayer(ICMP).code) == 3
-        ):
-            return "Port 80 on", selected_host, "is closed."
-        elif int(response.getlayer(ICMP).type) == 3 and int(
-            response.getlayer(ICMP).code
-        ) in [1, 2, 9, 10, 13]:
-            return "Port 80 on", selected_host, "is filtered."
-    else:
-        return "Unexpected response received."
-    """
 
     return (
         "Port "
@@ -279,7 +253,7 @@ def perform_ftp_attack():
 
 
 # (7) Code to perform ip address sweep
-def perform_sweep(packet_dst=None, packet_data=""):
+def perform_sweep(packet_dst=None, packet_data="", start=1, end=255):
     flag = False
 
     if not packet_dst:
@@ -289,7 +263,7 @@ def perform_sweep(packet_dst=None, packet_data=""):
         flag = True
 
     live_hosts = []
-    ip_range = [packet_dst + str(i) for i in range(1, 255)]
+    ip_range = [packet_dst + str(i) for i in range(start, end)]
 
     for ip in ip_range:
         packet = IP(dst=ip) / ICMP() / packet_data
