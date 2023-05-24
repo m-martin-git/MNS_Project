@@ -253,7 +253,7 @@ def perform_ftp_attack():
 
 
 # (7) Code to perform ip address sweep
-def perform_sweep(packet_dst=None, packet_data="", start=1, end=255):
+def perform_sweep(packet_dst=None, start=1, end=255, packet_data=""):
     flag = False
 
     if not packet_dst:
