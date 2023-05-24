@@ -66,6 +66,50 @@ def print_attack_menu():
 # perform the attack
 
 
+###############  Addittional functions ###############
+
+def ask_host_and_port(live_hosts):
+    # Prompt the user to choose a host by typing a number
+    selected_host = None
+    while not selected_host:
+        try:
+            # Display the list of live hosts with corresponding numbers
+            for i, host in enumerate(live_hosts):
+                print(f"{i+1}: {host}")
+
+            choice = input("Enter the number of the host you want to select: ")
+            choice = int(choice)
+
+            if 1 <= choice <= len(live_hosts):
+                selected_host = live_hosts[choice - 1]
+            else:
+                print("Invalid choice. Please enter a valid number.")
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    # Print the selected host
+    print("Selected host: ", selected_host)
+
+    # Ask the destination port
+    selected_port = None
+    while not selected_port:
+        try:
+            selected_port = input("Enter the destination port: ")
+            selected_port = int(selected_port)
+
+            if not 1 <= selected_port <= 65535:
+                print("Invalid port. Please enter a valid port number.")
+                selected_port = None
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+    # Print the selected port
+    print("Selected port: ", selected_port)
+
+    return selected_host, selected_port
+
+
+###############  Attacks Functions ###############
+
 # (1) Code to perform reconnaissance TCP ACK FLAG Scan
 def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
@@ -74,10 +118,7 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
 
     dst_ip, dst_port = ask_host_and_port(live_hosts)
 
-    return perform_TCP_ACK(dst_ip, dst_port)
-
-    
-
+    return perform_TCP_ACK_scan(dst_ip, dst_port)
 
 
 # (2) Code to perform reconnaissance UDP SCAN
@@ -360,7 +401,7 @@ def perform_os_discovery(ip_addr=None):
     return "OS discovery performed on {}. Detected OS: {}".format(ip_addr, os_result)
 
 
-# Determine the OS based on the response packet TTL value
+# (12.1) Determine the OS based on the response packet TTL value
 def os_fingerprint(packet):
     if packet.haslayer(IP):
         ip_ttl = packet[IP].ttl
@@ -504,45 +545,7 @@ def perform_special_attack(ip_addr=None):
     return "Special attack performed on " + ip_addr
 
 
-def ask_host_and_port(live_hosts):
-    # Prompt the user to choose a host by typing a number
-    selected_host = None
-    while not selected_host:
-        try:
-            # Display the list of live hosts with corresponding numbers
-            for i, host in enumerate(live_hosts):
-                print(f"{i+1}: {host}")
-
-            choice = input("Enter the number of the host you want to select: ")
-            choice = int(choice)
-
-            if 1 <= choice <= len(live_hosts):
-                selected_host = live_hosts[choice - 1]
-            else:
-                print("Invalid choice. Please enter a valid number.")
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-
-    # Print the selected host
-    print("Selected host: ", selected_host)
-
-    # Ask the destination port
-    selected_port = None
-    while not selected_port:
-        try:
-            selected_port = input("Enter the destination port: ")
-            selected_port = int(selected_port)
-
-            if not 1 <= selected_port <= 65535:
-                print("Invalid port. Please enter a valid port number.")
-                selected_port = None
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
-    # Print the selected port
-    print("Selected port: ", selected_port)
-
-    return selected_host, selected_port
-
+############### MAIN ###############
 
 def main():
     # Print attack menu
