@@ -1,6 +1,7 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP, TCP, ICMP
 from scapy.layers.http import *
+import threading
 
 
 def attack_to_perform(number):
