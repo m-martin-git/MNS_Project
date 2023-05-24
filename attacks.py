@@ -59,14 +59,11 @@ def print_attack_menu():
     print()
 
 
-# write a function for each attack in the print_attack_menu
-# each function should return a string describing the attack
-# the function should take any required input from the user
-# and should call any other functions that are required to
-# perform the attack
+# Each attack in the print_attack_menu has a corresponding function below.
+# Each function return a string that will be displayed to the user.
 
+###############  Additional functions ###############
 
-###############  Addittional functions ###############
 
 def ask_host_and_port(live_hosts):
     # Prompt the user to choose a host by typing a number
@@ -110,6 +107,7 @@ def ask_host_and_port(live_hosts):
 
 ###############  Attacks Functions ###############
 
+
 # (1) Code to perform reconnaissance TCP ACK FLAG Scan
 def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     print("Searching for live hosts on the network...")
@@ -141,6 +139,7 @@ def perform_reconnaissance_UDP_SCAN(ip_addr="192.168.200."):
         + " is "
         + perform_udp_scan(dst_ip, dst_port, dst_timeout)
     )
+
 
 # (3) Code to perform denial of service SYN FLOOD on Windows XP
 def perform_dos_syn_on_XP(ip_addr="192.168.200.40"):
@@ -315,7 +314,6 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
 
 # (10) Code to perform TCP ACK FLAG Scan on custom IP
 def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
-
     if not dst_ip:
         # Get input from the user
         dst_ip = input("Enter the IP address to scan: ")
@@ -345,7 +343,6 @@ def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
 
 # (11) Code to perform UDP SCAN on custom IP
 def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
-
     if not dst_ip:
         # Get input from the user
         dst_ip = input("Enter the IP address to scan: ")
@@ -365,7 +362,7 @@ def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
 
         for item in retrans:
             if item is not None:
-                udp_scan(dst_ip, dst_port, dst_timeout)
+                perform_udp_scan(dst_ip, dst_port, dst_timeout)
 
         return "Open|Filtered"
 
@@ -546,6 +543,7 @@ def perform_special_attack(ip_addr=None):
 
 
 ############### MAIN ###############
+
 
 def main():
     # Print attack menu
