@@ -16,12 +16,12 @@ def attack_to_perform(number):
         8: perform_port_scan_TCP,  # port scan (ok)
         9: perform_ip_spoofing,  # ip spoofing (ok)
         10: perform_os_discovery,  # os discovery (ok)
-        11: perform_syn_flood_attack,  # syn flood attack (?)
-        12: perform_icmp_flood_attack,  # icmp flood attack (?)
-        13: perform_udp_flood_attack,  # udp flood attack (?)
-        14: perform_http_flood_attack,  # http flood attack (?)
+        11: perform_syn_flood_attack,  # syn flood attack (ok)
+        12: perform_icmp_flood_attack,  # icmp flood attack (ok)
+        13: perform_udp_flood_attack,  # udp flood attack (ok)
+        14: perform_http_flood_attack,  # http flood attack (ok)
         15: perform_ping_of_death,  # ping of death (ok)
-        16: perform_tcp_rst_on_telnet,  # arp poisoning (to implement)
+        16: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
         17: perform_special_attack,  # special attack
     }
 
