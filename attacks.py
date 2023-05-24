@@ -86,7 +86,19 @@ def perform_reconnaissance_TCP_ACK(ip_addr="192.168.200."):
     # Print the selected host
     print("Selected host: ", selected_host)
 
-    dst_port = 80
+    # Ask the destination port
+    dst_port = None
+    while not dst_port:
+        try:
+            dst_port = input("Enter the destination port: ")
+            dst_port = int(dst_port)
+
+            if not 1 <= dst_port <= 65535:
+                print("Invalid port. Please enter a valid port number.")
+                dst_port = None
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
     dst_ip = selected_host
 
     # Perform the TCP ACK scan
