@@ -295,7 +295,7 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
         # Get input from the user
         packet_data = input("Enter the packet data: ")
 
-    packet = IP(src=src_ip, dst=dst_ip) / packet_data
+    packet = IP(src=src_ip, dst=dst_ip) / ICMP() / packet_data
 
     packet_counter = 0
 
