@@ -202,7 +202,7 @@ def perform_sweep(packet_dst=None, start=1, end=255, packet_data=""):
 
     if not packet_dst:
         # Get input from the user
-        packet_dst = input("Enter the destination IP: ")
+        packet_dst = input("Enter the destination IP range: ")
         packet_data = input("Enter the packet data: ")
         flag = True
 
@@ -546,24 +546,29 @@ def perform_special_attack(ip_addr=None):
 
 
 def main():
-    # Print attack menu
-    print_attack_menu()
+    try: 
+        # Print attack menu
+        print_attack_menu()
 
-    # Get input from the user
-    while True:
-        try:
-            number = int(input("Select an attack: "))
-            break  # Exit the loop if a valid number is entered
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
+        # Get input from the user
+        while True:
+            try:
+                number = int(input("Select an attack: "))
+                break  # Exit the loop if a valid number is entered
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
 
-    # Select the attack type
-    atk = attack_to_perform(number)
+        # Select the attack type
+        atk = attack_to_perform(number)
 
-    # Print the result
-    print()
-    print(atk)
-    print()
+        # Print the result
+        print()
+        print(atk)
+        print()
+    except KeyboardInterrupt:
+        print()
+        print("Forced exit")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
