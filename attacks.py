@@ -506,7 +506,7 @@ def perform_ping_of_death(ip_addr=None):
 
 # (17) Code to perform TCP reset attack on telnet
 def perform_tcp_rst_on_telnet():
-    print("Telnet Reset\n")
+    print("Telnet Reset")
     host1 = input("Enter the IP address to attack (the one who requested the telnet): ")
     host2 = input("Enter the IP address of the target of Telnet: ")
     interface = "eth0"
