@@ -339,7 +339,7 @@ def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
             response.getlayer(ICMP).code
         ) in [1, 2, 3, 9, 10, 13]:
             return "Stateful firewall present (Filtered)"
-    
+
 
 # (11) Code to perform UDP SCAN on custom IP
 def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
@@ -546,7 +546,7 @@ def perform_special_attack(ip_addr=None):
 
 
 def main():
-    try: 
+    try:
         # Print attack menu
         print_attack_menu()
 
