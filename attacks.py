@@ -320,7 +320,7 @@ def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
 
     if not dst_port:
         # Get input from the user
-        dst_port = input("Enter the port range to scan (e.g. 1-1000): ")
+        dst_port = input("Enter the port to scan: ")
 
     # Perform the TCP ACK scan
     print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
@@ -339,7 +339,7 @@ def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
             response.getlayer(ICMP).code
         ) in [1, 2, 3, 9, 10, 13]:
             return "Stateful firewall present (Filtered)"
-
+    
 
 # (11) Code to perform UDP SCAN on custom IP
 def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
@@ -349,7 +349,7 @@ def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
 
     if not dst_port:
         # Get input from the user
-        dst_port = input("Enter the port range to scan (e.g. 1-1000): ")
+        dst_port = input("Enter the port to scan: ")
 
     udp_scan_resp = sr1(IP(dst=dst_ip) / UDP(dport=int(dst_port)), timeout=dst_timeout)
 
