@@ -531,7 +531,7 @@ def perform_tcp_rst_on_telnet():
         prn=do_rst,
     )
 
-    return "ARP poisoning performed on " + host1
+    return "TCP reset attack performed on " + host1
 
 
 # (18) Code to perform Special attack
