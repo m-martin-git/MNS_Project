@@ -22,7 +22,7 @@ def attack_to_perform(number):
         14: perform_icmp_flood_attack,  # icmp flood attack (ok)
         15: perform_udp_flood_attack,  # udp flood attack (ok)
         16: perform_http_flood_attack,  # http flood attack (ok)
-        #1*: perform_ping_of_death,  # ping of death (ok)
+        # 1*: perform_ping_of_death,  # ping of death (ok)
         17: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
         18: perform_special_attack,  # special attack
     }
@@ -34,7 +34,7 @@ def attack_to_perform(number):
 
 
 def print_attack_menu():
-    print("Standard Attacks: -----------------------------------")
+    print("Automated Attacks: -----------------------------------")
     print("(1) Reconnaissance: TCP ACK FLAG Scan on network 192.168.200.x ")
     print("(2) Reconnaissance: UDP Scan on network 192.168.200.x")
     print("(3) Denial of Service: SYN FLOOD on Windows XP")
@@ -52,7 +52,7 @@ def print_attack_menu():
     print("(14) ICMP Flood Attack")
     print("(15) UDP Flood Attack")
     print("(16) HTTP Flood Attack")
-    #print("(1*) Ping of Death")
+    # print("(1*) Ping of Death")
     print("(17) TCP RST on Telnet")
     print("(18) Special Attack")
     print("-----------------------------------------------------")
@@ -503,6 +503,7 @@ def perform_ping_of_death(ip_addr=None):
 
     return "Ping of death attack performed on " + ip_addr
 """
+
 
 # (17) Code to perform TCP reset attack on telnet
 def perform_tcp_rst_on_telnet():
