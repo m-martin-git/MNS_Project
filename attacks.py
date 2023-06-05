@@ -34,14 +34,14 @@ def attack_to_perform(number):
 
 
 def print_attack_menu():
-    print("Automated Attacks: -----------------------------------")
+    print("Automated Attacks: ---------------------------------------------")
     print("(1) Reconnaissance: TCP ACK FLAG Scan on network 192.168.200.x ")
     print("(2) Reconnaissance: UDP Scan on network 192.168.200.x")
     print("(3) Denial of Service: SYN FLOOD on Windows XP")
     print("(4) Denial of Service: HTTP FLOOD on Fileserver")
     print("(5) Denial of Service: ICMP FLOOD on Windows XP")
     print("(6) FTP Attack on Metasploitable 2")
-    print("Custom Attacks: -------------------------------------")
+    print("Custom Attacks: ------------------------------------------------")
     print("(7) IP Address Sweep")
     print("(8) Port Scan")
     print("(9) IP Spoofing")
@@ -55,7 +55,7 @@ def print_attack_menu():
     # print("(1*) Ping of Death")
     print("(17) TCP RST on Telnet")
     # print("(18) Special Attack")
-    print("-----------------------------------------------------")
+    print("----------------------------------------------------------------")
     print()
 
 
