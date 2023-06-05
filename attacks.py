@@ -24,7 +24,7 @@ def attack_to_perform(number):
         16: perform_http_flood_attack,  # http flood attack (ok)
         # 1*: perform_ping_of_death,  # ping of death (ok)
         17: perform_tcp_rst_on_telnet,  # tcp rst on telnet (ok)
-        18: perform_special_attack,  # special attack
+        # 18: perform_special_attack,  # special attack
     }
 
     if number in switch:
@@ -54,7 +54,7 @@ def print_attack_menu():
     print("(16) HTTP Flood Attack")
     # print("(1*) Ping of Death")
     print("(17) TCP RST on Telnet")
-    print("(18) Special Attack")
+    # print("(18) Special Attack")
     print("-----------------------------------------------------")
     print()
 
@@ -567,13 +567,14 @@ def perform_tcp_rst_on_telnet():
 
 
 # (18) Code to perform Special attack
+"""
 def perform_special_attack(ip_addr=None):
     if not ip_addr:
         # Get input from the user
         ip_addr = input("Enter the IP address to scan: ")
 
     return "Special attack performed on " + ip_addr
-
+"""
 
 ############### MAIN ###############
 
